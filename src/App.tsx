@@ -11,6 +11,7 @@ import { EditIncome } from './features/transactions/EditIncome';
 import { RecurringManage } from './features/recurring/RecurringManage';
 import { Analytics } from './features/analytics/Analytics';
 import { LockScreen } from './features/security/LockScreen';
+import { InstallPrompt } from './features/pwa/InstallPrompt';
 import { WalletIcon, ReceiptIcon, SettingsIcon, ChartPieIcon } from './shared/components/Icons';
 
 export default function App() {
@@ -45,6 +46,8 @@ export default function App() {
         {screen === 'analytics' && <Analytics onNavigate={navigate} />}
         {screen === 'recurring' && <RecurringManage onNavigate={navigate} />}
       </div>
+
+      <InstallPrompt />
 
       {/* Bottom navigation - shown on main tab screens, hidden when locked */}
       {!isLocked && (['dashboard', 'summary', 'analytics', 'settings'] as const).includes(screen as any) && (
