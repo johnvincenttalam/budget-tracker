@@ -1,4 +1,4 @@
-import type { SVGProps } from 'react';
+import React, { type SVGProps } from 'react';
 
 type IconProps = SVGProps<SVGSVGElement> & { size?: number };
 
@@ -284,7 +284,7 @@ export function ChartPieIcon({ size = 20, ...props }: IconProps) {
 }
 
 // Map category names to icon components
-const CATEGORY_ICON_MAP: Record<string, (props: IconProps) => JSX.Element> = {
+const CATEGORY_ICON_MAP: Record<string, (props: IconProps) => React.JSX.Element> = {
   Food: FoodIcon,
   Transport: TransportIcon,
   Bills: BillsIcon,

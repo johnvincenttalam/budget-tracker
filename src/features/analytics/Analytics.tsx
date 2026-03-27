@@ -8,7 +8,7 @@ import { SpendingTrendsChart } from './SpendingTrendsChart';
 import { NeedsWantsChart } from './NeedsWantsChart';
 import type { Screen } from '../../shared/types';
 
-export function Analytics({ onNavigate }: { onNavigate: (s: Screen) => void }) {
+export function Analytics({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => void }) {
   const store = useBudgetStore();
   const customCategories = store.customCategories;
   const sym = store.currencySymbol;
@@ -20,7 +20,6 @@ export function Analytics({ onNavigate }: { onNavigate: (s: Screen) => void }) {
 
   const income = store.getTotalIncome(cycle);
   const expenses = store.getTotalExpenses(cycle);
-  const balance = store.getBalance(cycle);
   const byCategory = store.getExpensesByCategory(cycle);
 
   // Average daily spend

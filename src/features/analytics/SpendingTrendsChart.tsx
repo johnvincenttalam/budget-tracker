@@ -41,7 +41,7 @@ export function SpendingTrendsChart() {
                 fontSize: '12px',
               }}
               labelStyle={{ color: '#94a3b8' }}
-              formatter={(value: number) => [formatMoney(value, sym), 'Expenses']}
+              formatter={(value) => [formatMoney(Number(value), sym), 'Expenses']}
             />
             <Bar dataKey="expenses" radius={[4, 4, 0, 0]}>
               {data.map((_, i) => (
