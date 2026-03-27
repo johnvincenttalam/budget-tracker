@@ -63,7 +63,7 @@ export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Scr
   return (
     <div className="flex flex-col h-[calc(100dvh-1rem)] px-4 pt-4 pb-2">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="sticky top-0 z-10 bg-slate-950 flex items-center justify-between pb-3 -mx-4 px-4 pt-0">
         <button onClick={() => onNavigate('summary')} className="text-slate-400 p-2 -ml-2 flex items-center gap-1">
           <ArrowLeftIcon size={18} />
           <span className="text-sm">Back</span>
@@ -105,22 +105,22 @@ export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Scr
         >Wants</button>
       </div>
 
-      {/* Note + Date */}
-      <div className="flex gap-2 mb-3">
-        <input
-          type="text"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Note (optional)"
-          className="flex-1 bg-slate-800/60 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
-        />
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="bg-slate-800/60 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 [color-scheme:dark]"
-        />
-      </div>
+      {/* Note */}
+      <input
+        type="text"
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder="Note (optional)"
+        className="bg-slate-800/60 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-2"
+      />
+
+      {/* Date */}
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+        className="bg-slate-800/60 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 mb-3 [color-scheme:dark]"
+      />
 
       {/* Numpad */}
       <div className="grid grid-cols-3 gap-2 flex-1 max-h-[280px]">

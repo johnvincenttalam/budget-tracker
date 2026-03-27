@@ -61,7 +61,7 @@ export function AddExpense({ onNavigate }: { onNavigate: (s: Screen) => void }) 
   return (
     <div className="flex flex-col h-[calc(100dvh-1rem)] px-4 pt-4 pb-2">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="sticky top-0 z-10 bg-slate-950 flex items-center justify-between pb-3 -mx-4 px-4 pt-0">
         <button
           onClick={() => onNavigate('dashboard')}
           className="text-slate-400 p-2 -ml-2 flex items-center gap-1"

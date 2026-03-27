@@ -84,7 +84,7 @@ export default function App() {
 
           {/* Bottom bar */}
           <div className="fixed bottom-0 left-0 right-0 z-50">
-            <div className="max-w-2xl mx-auto bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 px-6 py-3 grid grid-cols-5 items-center">
+            <div className="max-w-2xl mx-auto bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 px-6 py-3 grid grid-cols-5 gap-6 items-center">
               {/* Home */}
               <button
                 onClick={() => navigate('dashboard')}

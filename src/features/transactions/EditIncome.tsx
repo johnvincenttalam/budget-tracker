@@ -49,7 +49,7 @@ export function EditIncome({ onNavigate, transactionId }: { onNavigate: (s: Scre
   return (
     <div className="flex flex-col px-4 pt-4 pb-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="sticky top-0 z-10 bg-slate-950 flex items-center justify-between pb-3 -mx-4 px-4 pt-0">
         <button onClick={() => onNavigate('summary')} className="text-slate-400 p-2 -ml-2 flex items-center gap-1">
           <ArrowLeftIcon size={18} />
           <span className="text-sm">Back</span>
