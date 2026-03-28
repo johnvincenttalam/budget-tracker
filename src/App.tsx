@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Screen } from './shared/types';
 import { useBudgetStore } from './shared/store/useBudgetStore';
 import { Dashboard } from './features/dashboard/Dashboard';
@@ -16,10 +16,19 @@ import { WalletIcon, ReceiptIcon, SettingsIcon, ChartPieIcon } from './shared/co
 
 export default function App() {
   const pinHash = useBudgetStore((s) => s.pinHash);
+  const theme = useBudgetStore((s) => s.theme);
   const [isLocked, setIsLocked] = useState(() => !!useBudgetStore.getState().pinHash);
   const [screen, setScreen] = useState<Screen>('dashboard');
   const [fabOpen, setFabOpen] = useState(false);
   const [editTransactionId, setEditTransactionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute(
+      'content',
+      theme === 'dark' ? '#0f172a' : '#ffffff'
+    );
+  }, [theme]);
 
   function navigate(s: Screen, txId?: string) {
     setFabOpen(false);

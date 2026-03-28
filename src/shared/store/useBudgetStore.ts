@@ -4,6 +4,8 @@ import type { Transaction, Cycle, CurrencySymbol, CategoryBudget, RecurringTempl
 import { DEFAULT_CATEGORIES } from '../types';
 import { isDateInCycle } from '../utils/cycle';
 
+type Theme = 'dark' | 'light';
+
 interface BudgetState {
   transactions: Transaction[];
   currencySymbol: CurrencySymbol;
@@ -12,6 +14,7 @@ interface BudgetState {
   customCategories: CustomCategory[];
   lastDeletedTransaction: Transaction | null;
   pinHash: string | null;
+  theme: Theme;
 
   // Transaction actions
   addTransaction: (t: Omit<Transaction, 'id'>) => void;
@@ -34,6 +37,9 @@ interface BudgetState {
 
   // PIN lock
   setPinHash: (hash: string | null) => void;
+
+  // Theme
+  setTheme: (theme: Theme) => void;
 
   // Custom categories
   addCustomCategory: (cat: CustomCategory) => void;
@@ -59,6 +65,7 @@ export const useBudgetStore = create<BudgetState>()(
       customCategories: [],
       lastDeletedTransaction: null,
       pinHash: null,
+      theme: 'dark' as Theme,
 
       // Transaction actions
       addTransaction: (t) =>
@@ -144,6 +151,9 @@ export const useBudgetStore = create<BudgetState>()(
       // PIN lock
       setPinHash: (hash) => set({ pinHash: hash }),
 
+      // Theme
+      setTheme: (theme) => set({ theme }),
+
       // Custom categories
       addCustomCategory: (cat) =>
         set((state) => ({
@@ -212,6 +222,7 @@ export const useBudgetStore = create<BudgetState>()(
         recurringTemplates: state.recurringTemplates,
         customCategories: state.customCategories,
         pinHash: state.pinHash,
+        theme: state.theme,
       }),
     }
   )

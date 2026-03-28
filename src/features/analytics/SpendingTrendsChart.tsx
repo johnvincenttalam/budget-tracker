@@ -6,6 +6,7 @@ import { formatMoney } from '../../shared/utils/format';
 export function SpendingTrendsChart() {
   const store = useBudgetStore();
   const sym = store.currencySymbol;
+  const isDark = store.theme === 'dark';
   const cycles = getRecentCycles(6);
 
   const data = cycles.map((cycle) => ({
@@ -24,30 +25,31 @@ export function SpendingTrendsChart() {
           <BarChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
             <XAxis
               dataKey="label"
-              tick={{ fontSize: 10, fill: '#64748b' }}
+              tick={{ fontSize: 10, fill: isDark ? '#64748b' : '#94a3b8' }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              tick={{ fontSize: 10, fill: '#64748b' }}
+              tick={{ fontSize: 10, fill: isDark ? '#64748b' : '#94a3b8' }}
               axisLine={false}
               tickLine={false}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#1e293b',
-                border: '1px solid #334155',
+                backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                border: `1px solid ${isDark ? '#334155' : '#e2e8f0'}`,
                 borderRadius: '0.75rem',
                 fontSize: '12px',
+                color: isDark ? '#e2e8f0' : '#1e293b',
               }}
-              labelStyle={{ color: '#94a3b8' }}
+              labelStyle={{ color: isDark ? '#94a3b8' : '#64748b' }}
               formatter={(value) => [formatMoney(Number(value), sym), 'Expenses']}
             />
             <Bar dataKey="expenses" radius={[4, 4, 0, 0]}>
               {data.map((_, i) => (
                 <Cell
                   key={i}
-                  fill={i === data.length - 1 ? '#f87171' : '#475569'}
+                  fill={i === data.length - 1 ? '#f87171' : (isDark ? '#475569' : '#cbd5e1')}
                 />
               ))}
             </Bar>

@@ -8,10 +8,22 @@
   "background_color": "#0f172a",
   "icons": [
     {
-      "src": "/budget-tracker/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/budget-tracker/logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/budget-tracker/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/budget-tracker/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
