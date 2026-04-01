@@ -24,6 +24,7 @@ export type Transaction = {
   note?: string;
   source?: string; // for income
   tag?: Tag;
+  createdAt?: string; // ISO timestamp for sort order
 };
 
 export type Cycle = {

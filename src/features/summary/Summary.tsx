@@ -25,7 +25,11 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
   const byCategory = store.getExpensesByCategory(cycle);
   const transactions = store
     .getTransactionsForCycle(cycle)
-    .sort((a, b) => b.date.localeCompare(a.date));
+    .sort((a, b) => {
+      const aTime = a.createdAt ?? a.date;
+      const bTime = b.createdAt ?? b.date;
+      return bTime.localeCompare(aTime);
+    });
 
   function handleDelete(id: string) {
     if (confirmDelete === id) {

@@ -72,7 +72,7 @@ export const useBudgetStore = create<BudgetState>()(
         set((state) => ({
           transactions: [
             ...state.transactions,
-            { ...t, id: crypto.randomUUID() },
+            { ...t, id: crypto.randomUUID(), createdAt: new Date().toISOString() },
           ],
         })),
 

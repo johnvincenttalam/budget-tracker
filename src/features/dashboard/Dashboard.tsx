@@ -22,7 +22,11 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   // Recent transactions (last 5)
   const recentTxns = store
     .getTransactionsForCycle(cycle)
-    .sort((a, b) => b.date.localeCompare(a.date))
+    .sort((a, b) => {
+      const aTime = a.createdAt ?? a.date;
+      const bTime = b.createdAt ?? b.date;
+      return bTime.localeCompare(aTime);
+    })
     .slice(0, 5);
 
   // Previous cycle

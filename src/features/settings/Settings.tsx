@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import { getCurrentCycle, getPreviousCycle } from '../../shared/utils/cycle';
 import { getCategoryIconName } from '../../shared/utils/categories';
@@ -27,6 +27,10 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const [showRemovePin, setShowRemovePin] = useState(false);
   const [removePinInput, setRemovePinInput] = useState('');
   const [removePinError, setRemovePinError] = useState(false);
+  const [restoreStatus, setRestoreStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
+  const [pendingRestore, setPendingRestore] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function handleSetLimit(cat: string) {
     const val = parseFloat(limitInput);
@@ -67,6 +71,58 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
     } else {
       setRemovePinError(true);
       setRemovePinInput('');
+    }
+  }
+
+  function handleBackup() {
+    const data = localStorage.getItem('budget-tracker-storage');
+    if (!data) return;
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `budget-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleRestoreFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const text = ev.target?.result as string;
+        // Validate it's valid JSON with expected structure
+        const parsed = JSON.parse(text);
+        if (!parsed.state || !Array.isArray(parsed.state.transactions)) {
+          setRestoreStatus('error');
+          return;
+        }
+        setPendingRestore(text);
+        setShowRestoreConfirm(true);
+      } catch {
+        setRestoreStatus('error');
+      }
+    };
+    reader.readAsText(file);
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  }
+
+  function confirmRestore() {
+    if (!pendingRestore) return;
+    try {
+      localStorage.setItem('budget-tracker-storage', pendingRestore);
+      setRestoreStatus('success');
+      setShowRestoreConfirm(false);
+      setPendingRestore(null);
+      // Reload to apply restored data
+      setTimeout(() => window.location.reload(), 800);
+    } catch {
+      setRestoreStatus('error');
+      setShowRestoreConfirm(false);
+      setPendingRestore(null);
     }
   }
 
@@ -407,6 +463,67 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
           </button>
         </div>
       </div>
+
+      {/* Backup & Restore */}
+      <div>
+        <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">Backup & Restore</p>
+        <div className="bg-slate-800/60 rounded-xl p-4 space-y-3">
+          <p className="text-xs text-slate-500">
+            Back up all your data (transactions, settings, budgets) to a file, or restore from a previous backup.
+          </p>
+          <button
+            onClick={handleBackup}
+            className="w-full py-3 rounded-xl text-sm font-bold bg-emerald-500 text-white active:scale-[0.98] transition-transform"
+          >
+            Download Backup
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleRestoreFile}
+            className="hidden"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full py-3 rounded-xl text-sm font-bold bg-slate-700 text-slate-200 active:scale-[0.98] transition-transform"
+          >
+            Restore from Backup
+          </button>
+          {restoreStatus === 'success' && (
+            <p className="text-xs text-emerald-400 text-center">Restore successful! Reloading...</p>
+          )}
+          {restoreStatus === 'error' && (
+            <p className="text-xs text-red-400 text-center">Invalid backup file. Please select a valid backup.</p>
+          )}
+        </div>
+      </div>
+
+      {/* Restore Confirmation Modal */}
+      {showRestoreConfirm && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-6">
+          <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-sm space-y-4">
+            <h3 className="text-white font-semibold text-base">Restore Backup?</h3>
+            <p className="text-sm text-slate-400">
+              This will replace all your current data with the backup. This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setShowRestoreConfirm(false); setPendingRestore(null); }}
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-slate-700 text-slate-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmRestore}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold bg-red-500 text-white active:scale-[0.98] transition-transform"
+              >
+                Replace Data
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Recurring */}
       <div>
