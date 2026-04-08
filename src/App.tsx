@@ -14,7 +14,7 @@ import { LockScreen } from './features/security/LockScreen';
 import { InstallPrompt } from './features/pwa/InstallPrompt';
 import { Bills } from './features/bills/Bills';
 import { Savings } from './features/savings/Savings';
-import { WalletIcon, ReceiptIcon, SettingsIcon, ChartPieIcon, ClipboardCheckIcon } from './shared/components/Icons';
+import { WalletIcon, ReceiptIcon, SettingsIcon, ClipboardCheckIcon } from './shared/components/Icons';
 
 export default function App() {
   const pinHash = useBudgetStore((s) => s.pinHash);

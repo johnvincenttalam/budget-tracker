@@ -1,19 +1,14 @@
 import { useState, useRef } from 'react';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import { getCurrentCycle, getPreviousCycle } from '../../shared/utils/cycle';
-import { getCategoryIconName } from '../../shared/utils/categories';
 import { transactionsToCSV, downloadCSV } from '../../shared/utils/csv';
 import { verifyPin } from '../security/pin';
 import { DEFAULT_CATEGORIES, PRESET_ICONS, type Screen, type PresetIcon } from '../../shared/types';
 import { ArrowLeftIcon, CategoryIcon, RepeatIcon } from '../../shared/components/Icons';
-import { BudgetProgress } from '../../shared/components/BudgetProgress';
 import { PinSetup } from '../security/PinSetup';
 
 export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const store = useBudgetStore();
-  const { currencySymbol, categoryBudgets, setCategoryBudget, removeCategoryBudget } = store;
-  const cycle = getCurrentCycle();
-  const byCategory = store.getExpensesByCategory(cycle);
   const categories = store.getAllCategories();
   const customCategories = store.customCategories;
 

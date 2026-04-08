@@ -5,8 +5,8 @@ import { getCurrentCycle, getNextCycle, getPrevCycle, getCycleForDate } from '..
 import { formatMoney } from '../../shared/utils/format';
 import { getBillStatus, getDueDateLabel, type BillStatus } from '../../shared/utils/bills';
 import { getCategoryIconName } from '../../shared/utils/categories';
-import { CategoryIcon, CheckCircleIcon } from '../../shared/components/Icons';
-import type { Screen, Tag } from '../../shared/types';
+import { CategoryIcon } from '../../shared/components/Icons';
+import type { Screen, CustomCategory } from '../../shared/types';
 
 export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => void }) {
   const toast = useToast();
@@ -483,7 +483,7 @@ function BillSection({
   bills: { id: string; name: string; amount: number; category: string; dueDay: number; note?: string; totalInstallments?: number; currentInstallment?: number }[];
   payments: { billId: string }[];
   sym: string;
-  customCategories: { name: string; icon: string }[];
+  customCategories: CustomCategory[];
   onTogglePay: (id: string) => void;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;

@@ -44,10 +44,7 @@ export function IncomeExpenseChart() {
                 color: isDark ? '#E5E5EA' : '#1C1C1E',
               }}
               labelStyle={{ color: isDark ? '#8E8E93' : '#636366' }}
-              formatter={(value: number, name: string) => [
-                formatMoney(value, sym),
-                name === 'income' ? 'Income' : 'Expenses',
-              ]}
+              formatter={(value) => [formatMoney(Number(value), sym)]}
             />
             <Legend
               iconType="circle"
