@@ -12,8 +12,6 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const categories = store.getAllCategories();
   const customCategories = store.customCategories;
 
-  const [editingCat, setEditingCat] = useState<string | null>(null);
-  const [limitInput, setLimitInput] = useState('');
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [newCatIcon, setNewCatIcon] = useState<PresetIcon>('Shopping');
@@ -26,15 +24,6 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
   const [pendingRestore, setPendingRestore] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  function handleSetLimit(cat: string) {
-    const val = parseFloat(limitInput);
-    if (val > 0) {
-      setCategoryBudget(cat, val);
-    }
-    setEditingCat(null);
-    setLimitInput('');
-  }
 
   function handleExport() {
     let txns;
