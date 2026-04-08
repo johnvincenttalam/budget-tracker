@@ -39,7 +39,7 @@ export function InstallPrompt() {
 
   return (
     <div className="fixed bottom-20 left-4 right-4 z-50 max-w-2xl mx-auto animate-fade-in">
-      <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-xl">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-xl">
         <p className="text-sm text-slate-200 font-medium">Install Budget Tracker as an app</p>
         <div className="flex gap-2 shrink-0">
           <button

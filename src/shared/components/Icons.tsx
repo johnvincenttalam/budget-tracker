@@ -274,6 +274,16 @@ export function TravelIcon({ size = 20, ...props }: IconProps) {
   );
 }
 
+export function ClipboardCheckIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...defaults(size, props)}>
+      <rect x="5" y="2" width="14" height="20" rx="2" />
+      <path d="M9 2h6v2a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V2z" />
+      <path d="m9 14 2 2 4-4" />
+    </svg>
+  );
+}
+
 export function ChartPieIcon({ size = 20, ...props }: IconProps) {
   return (
     <svg {...defaults(size, props)}>
@@ -281,6 +291,68 @@ export function ChartPieIcon({ size = 20, ...props }: IconProps) {
       <path d="M21 15a9 9 0 1 1-6-8.49" />
     </svg>
   );
+}
+
+// Savings-specific icons
+export function TargetIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg className={`w-${size/4} h-${size/4}`} width={size} height={size} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 2a10 10 0 1 0 10 10M12 6a6 6 0 1 0 6 6m-6-2a2 2 0 1 0 2 2m2-8h4m0 0v4m0-4l-6 6" />
+    </svg>
+  );
+}
+
+export function ShieldIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg className={`w-${size/4} h-${size/4}`} width={size} height={size} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+    </svg>
+  );
+}
+
+export function RingIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg className={`w-${size/4} h-${size/4}`} width={size} height={size} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3l2 4h-4l2-4zm-5 9a5 5 0 1 0 10 0 5 5 0 1 0-10 0z" />
+    </svg>
+  );
+}
+
+export function CarIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg className={`w-${size/4} h-${size/4}`} width={size} height={size} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+    </svg>
+  );
+}
+
+export function PiggyBankIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg className={`w-${size/4} h-${size/4}`} width={size} height={size} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} {...props}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+    </svg>
+  );
+}
+
+// Savings icon map
+export const SAVINGS_ICON_MAP: Record<string, (props: IconProps) => React.JSX.Element> = {
+  Target: TargetIcon,
+  Home: HomeIcon,
+  Car: CarIcon,
+  Travel: TravelIcon,
+  Phone: PhoneIcon,
+  Education: EducationIcon,
+  Health: HealthIcon,
+  Shield: ShieldIcon,
+  Baby: BabyIcon,
+  Ring: RingIcon,
+  Gift: GiftIcon,
+  PiggyBank: PiggyBankIcon,
+};
+
+export function SavingsIconComponent({ name, size = 18, className }: { name: string; size?: number; className?: string }) {
+  const Icon = SAVINGS_ICON_MAP[name] ?? TargetIcon;
+  return <Icon size={size} className={className} />;
 }
 
 // Map category names to icon components

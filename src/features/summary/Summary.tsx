@@ -16,6 +16,7 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [filterTag, setFilterTag] = useState<'all' | 'needs' | 'wants'>('all');
+  const [sortBy, setSortBy] = useState<'date' | 'amount' | 'category'>('date');
   const [showUndoToast, setShowUndoToast] = useState(false);
 
   const cycle = tab === 'current' ? getCurrentCycle() : getPreviousCycle();
@@ -26,6 +27,12 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
   const transactions = store
     .getTransactionsForCycle(cycle)
     .sort((a, b) => {
+      if (sortBy === 'amount') return b.amount - a.amount;
+      if (sortBy === 'category') {
+        const aCat = a.type === 'income' ? a.source ?? 'Income' : a.category ?? 'Other';
+        const bCat = b.type === 'income' ? b.source ?? 'Income' : b.category ?? 'Other';
+        return aCat.localeCompare(bCat);
+      }
       const aTime = a.createdAt ?? a.date;
       const bTime = b.createdAt ?? b.date;
       return bTime.localeCompare(aTime);
@@ -38,6 +45,7 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
       setShowUndoToast(true);
     } else {
       setConfirmDelete(id);
+      setTimeout(() => setConfirmDelete((prev) => prev === id ? null : prev), 3000);
     }
   }
 
@@ -61,7 +69,7 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
       <div
         key={t.id}
         onClick={() => handleEdit(t)}
-        className="bg-slate-800/40 rounded-xl px-4 py-3 flex items-center justify-between active:bg-slate-800/70 transition-colors cursor-pointer"
+        className="px-4 py-3 flex items-center justify-between active:bg-slate-800 transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
@@ -112,7 +120,7 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
             className={`text-xs px-2 py-1 rounded-lg transition-all duration-200 ${
               confirmDelete === t.id
                 ? 'bg-red-500 text-white scale-110'
-                : 'bg-slate-700 text-slate-400 scale-100'
+                : 'bg-slate-800 text-slate-400 scale-100'
             }`}
           >
             {confirmDelete === t.id ? 'Sure?' : '×'}
@@ -130,7 +138,7 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-slate-800/60 rounded-xl p-1">
+      <div className="flex bg-slate-900 rounded-xl p-1">
         <button
           onClick={() => setTab('current')}
           className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
@@ -154,15 +162,15 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
 
       {/* Totals */}
       <div className="grid grid-cols-3 gap-2">
-        <div className="bg-slate-800/60 rounded-xl p-3 text-center">
+        <div className="bg-slate-900 rounded-xl p-3 text-center">
           <p className="text-[10px] text-slate-500 uppercase">Income</p>
           <p className="text-base font-bold text-emerald-400">{formatMoney(income, sym)}</p>
         </div>
-        <div className="bg-slate-800/60 rounded-xl p-3 text-center">
+        <div className="bg-slate-900 rounded-xl p-3 text-center">
           <p className="text-[10px] text-slate-500 uppercase">Expenses</p>
           <p className="text-base font-bold text-red-400">{formatMoney(expenses, sym)}</p>
         </div>
-        <div className="bg-slate-800/60 rounded-xl p-3 text-center">
+        <div className="bg-slate-900 rounded-xl p-3 text-center">
           <p className="text-[10px] text-slate-500 uppercase">Balance</p>
           <p
             className={`text-base font-bold ${balance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}
@@ -174,7 +182,7 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
 
       {/* Category breakdown */}
       {Object.keys(byCategory).length > 0 && (
-        <div className="bg-slate-800/60 rounded-xl p-4">
+        <div className="bg-slate-900 rounded-xl p-4">
           <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">By Category</p>
           <div className="space-y-2">
             {Object.entries(byCategory)
@@ -218,7 +226,7 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search transactions..."
-            className="w-full bg-slate-800/60 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-900 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
           />
         </div>
 
@@ -229,13 +237,13 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
               key={f}
               onClick={() => setFilterType(f)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
-                filterType === f ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-400'
+                filterType === f ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-slate-400'
               }`}
             >
               {f === 'all' ? 'All' : f === 'income' ? 'Income' : 'Expenses'}
             </button>
           ))}
-          <div className="w-px bg-slate-700 shrink-0" />
+          <div className="w-px bg-slate-800 shrink-0" />
           {(['all', 'needs', 'wants'] as const).map((f) => (
             <button
               key={f}
@@ -243,10 +251,26 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
                 filterTag === f
                   ? f === 'needs' ? 'bg-blue-500 text-white' : f === 'wants' ? 'bg-purple-500 text-white' : 'bg-emerald-500 text-white'
-                  : 'bg-slate-800 text-slate-400'
+                  : 'bg-slate-900 text-slate-400'
               }`}
             >
               {f === 'all' ? 'All Tags' : f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+
+        {/* Sort */}
+        <div className="flex gap-2">
+          <span className="text-xs text-slate-500 self-center shrink-0">Sort:</span>
+          {(['date', 'amount', 'category'] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => setSortBy(s)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
+                sortBy === s ? 'bg-slate-700 text-white' : 'bg-slate-900 text-slate-400'
+              }`}
+            >
+              {s.charAt(0).toUpperCase() + s.slice(1)}
             </button>
           ))}
         </div>
@@ -267,6 +291,20 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
           return true;
         });
 
+        // Group by date when sorting by date
+        const grouped: { date: string; items: Transaction[] }[] = [];
+        if (sortBy === 'date') {
+          const byDate = [...filtered].sort((a, b) => b.date.localeCompare(a.date));
+          for (const t of byDate) {
+            const last = grouped[grouped.length - 1];
+            if (last && last.date === t.date) {
+              last.items.push(t);
+            } else {
+              grouped.push({ date: t.date, items: [t] });
+            }
+          }
+        }
+
         return (
           <div>
             <p className="text-xs text-slate-400 uppercase tracking-wider mb-2">
@@ -276,8 +314,23 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
               <p className="text-center text-slate-500 text-sm py-8">
                 {transactions.length === 0 ? 'No transactions this cycle' : 'No matching transactions'}
               </p>
+            ) : sortBy === 'date' ? (
+              <div className="space-y-3">
+                {grouped.map((g) => {
+                  const d = new Date(g.date + 'T00:00:00');
+                  const label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                  return (
+                    <div key={g.date}>
+                      <p className="text-xs text-slate-500 font-medium mb-1.5 px-1">{label}</p>
+                      <div className="bg-slate-900 rounded-2xl overflow-hidden divide-y divide-slate-800">
+                        {g.items.map(renderTransaction)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
-              <div className="space-y-2">{filtered.map(renderTransaction)}</div>
+              <div className="bg-slate-900 rounded-2xl overflow-hidden divide-y divide-slate-800">{filtered.map(renderTransaction)}</div>
             )}
           </div>
         );

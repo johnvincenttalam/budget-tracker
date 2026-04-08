@@ -1,8 +1,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Transaction, Cycle, CurrencySymbol, CategoryBudget, RecurringTemplate, CustomCategory } from '../types';
+import type { Transaction, Cycle, CurrencySymbol, CategoryBudget, RecurringTemplate, CustomCategory, BillTemplate, BillPayment, BillOverride, SavingsGoal, SavingsContribution, Screen } from '../types';
 import { DEFAULT_CATEGORIES } from '../types';
 import { isDateInCycle } from '../utils/cycle';
+
+const genId = (): string =>
+  typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+      });
 
 type Theme = 'dark' | 'light';
 
@@ -15,6 +23,17 @@ interface BudgetState {
   lastDeletedTransaction: Transaction | null;
   pinHash: string | null;
   theme: Theme;
+  billTemplates: BillTemplate[];
+  billPayments: BillPayment[];
+  billOverrides: BillOverride[];
+  savingsGoals: SavingsGoal[];
+  savingsContributions: SavingsContribution[];
+  currentScreen: Screen;
+  billsCycleStart: string | null;
+
+  // Navigation
+  setCurrentScreen: (screen: Screen) => void;
+  setBillsCycleStart: (startDate: string | null) => void;
 
   // Transaction actions
   addTransaction: (t: Omit<Transaction, 'id'>) => void;
@@ -35,11 +54,33 @@ interface BudgetState {
   deleteRecurringTemplate: (id: string) => void;
   toggleRecurringTemplate: (id: string) => void;
 
+  // Bills
+  addBillTemplate: (t: Omit<BillTemplate, 'id'>) => void;
+  updateBillTemplate: (id: string, updates: Partial<Omit<BillTemplate, 'id'>>) => void;
+  deleteBillTemplate: (id: string) => void;
+  payBill: (billId: string, cycle: Cycle) => void;
+  unpayBill: (billId: string, cycleKey: string) => void;
+  getBillPaymentsForCycle: (cycleKey: string) => BillPayment[];
+  setBillOverride: (billId: string, cycleKey: string, overrides: Omit<BillOverride, 'billId' | 'cycleKey'>) => void;
+  getBillOverride: (billId: string, cycleKey: string) => BillOverride | undefined;
+
   // PIN lock
   setPinHash: (hash: string | null) => void;
 
   // Theme
   setTheme: (theme: Theme) => void;
+
+  // Cycle config
+  cycleSplitDay: number;
+  setCycleSplitDay: (day: number) => void;
+
+  // Savings
+  addSavingsGoal: (goal: Omit<SavingsGoal, 'id' | 'createdAt'>) => void;
+  updateSavingsGoal: (id: string, updates: Partial<Omit<SavingsGoal, 'id'>>) => void;
+  deleteSavingsGoal: (id: string) => void;
+  addContribution: (goalId: string, amount: number, cycleKey: string, note?: string) => void;
+  deleteContribution: (id: string) => void;
+  getContributionsForGoal: (goalId: string) => SavingsContribution[];
 
   // Custom categories
   addCustomCategory: (cat: CustomCategory) => void;
@@ -66,13 +107,24 @@ export const useBudgetStore = create<BudgetState>()(
       lastDeletedTransaction: null,
       pinHash: null,
       theme: 'dark' as Theme,
+      billTemplates: [],
+      billPayments: [],
+      billOverrides: [],
+      savingsGoals: [],
+      savingsContributions: [],
+      currentScreen: 'dashboard' as Screen,
+      billsCycleStart: null,
+
+      // Navigation
+      setCurrentScreen: (screen) => set({ currentScreen: screen }),
+      setBillsCycleStart: (startDate) => set({ billsCycleStart: startDate }),
 
       // Transaction actions
       addTransaction: (t) =>
         set((state) => ({
           transactions: [
             ...state.transactions,
-            { ...t, id: crypto.randomUUID(), createdAt: new Date().toISOString() },
+            { ...t, id: genId(), createdAt: new Date().toISOString() },
           ],
         })),
 
@@ -132,7 +184,7 @@ export const useBudgetStore = create<BudgetState>()(
         set((state) => ({
           recurringTemplates: [
             ...state.recurringTemplates,
-            { ...t, id: crypto.randomUUID() },
+            { ...t, id: genId() },
           ],
         })),
 
@@ -148,11 +200,151 @@ export const useBudgetStore = create<BudgetState>()(
           ),
         })),
 
+      // Bills
+      addBillTemplate: (t) =>
+        set((state) => ({
+          billTemplates: [...state.billTemplates, { ...t, id: genId() }],
+        })),
+
+      updateBillTemplate: (id, updates) =>
+        set((state) => ({
+          billTemplates: state.billTemplates.map((b) =>
+            b.id === id ? { ...b, ...updates } : b
+          ),
+        })),
+
+      deleteBillTemplate: (id) =>
+        set((state) => ({
+          billTemplates: state.billTemplates.filter((b) => b.id !== id),
+          billPayments: state.billPayments.filter((p) => p.billId !== id),
+        })),
+
+      payBill: (billId, cycle) =>
+        set((state) => {
+          const bill = state.billTemplates.find((b) => b.id === billId);
+          if (!bill) return {};
+
+          // Advance installment and auto-disable if fully paid
+          const updatedTemplates = state.billTemplates.map((b) => {
+            if (b.id !== billId || !b.totalInstallments || b.currentInstallment == null) return b;
+            const isLastPayment = b.currentInstallment >= b.totalInstallments;
+            return {
+              ...b,
+              currentInstallment: isLastPayment ? b.currentInstallment : b.currentInstallment + 1,
+              enabled: isLastPayment ? false : b.enabled,
+            };
+          });
+
+          return {
+            billTemplates: updatedTemplates,
+            billPayments: [...state.billPayments, {
+              billId,
+              cycleKey: cycle.startDate,
+              paidAt: new Date().toISOString(),
+              transactionId: '',
+            }],
+          };
+        }),
+
+      unpayBill: (billId, cycleKey) =>
+        set((state) => {
+          // Reverse installment advancement
+          const updatedTemplates = state.billTemplates.map((b) => {
+            if (b.id !== billId || !b.totalInstallments || b.currentInstallment == null) return b;
+            return {
+              ...b,
+              currentInstallment: Math.max(1, b.currentInstallment - 1),
+              enabled: true,
+            };
+          });
+          return {
+            billTemplates: updatedTemplates,
+            billPayments: state.billPayments.filter(
+              (p) => !(p.billId === billId && p.cycleKey === cycleKey)
+            ),
+          };
+        }),
+
+      getBillPaymentsForCycle: (cycleKey) =>
+        get().billPayments.filter((p) => p.cycleKey === cycleKey),
+
+      setBillOverride: (billId, cycleKey, overrides) =>
+        set((state) => {
+          const existing = state.billOverrides.findIndex(
+            (o) => o.billId === billId && o.cycleKey === cycleKey
+          );
+          if (existing >= 0) {
+            const updated = [...state.billOverrides];
+            updated[existing] = { ...updated[existing], ...overrides };
+            return { billOverrides: updated };
+          }
+          return {
+            billOverrides: [...state.billOverrides, { billId, cycleKey, ...overrides }],
+          };
+        }),
+
+      getBillOverride: (billId, cycleKey) =>
+        get().billOverrides.find((o) => o.billId === billId && o.cycleKey === cycleKey),
+
       // PIN lock
       setPinHash: (hash) => set({ pinHash: hash }),
 
       // Theme
       setTheme: (theme) => set({ theme }),
+
+      // Cycle config
+      cycleSplitDay: 15,
+      setCycleSplitDay: (day) => set({ cycleSplitDay: day }),
+
+      // Savings
+      addSavingsGoal: (goal) =>
+        set((state) => ({
+          savingsGoals: [...state.savingsGoals, { ...goal, id: genId(), createdAt: new Date().toISOString() }],
+        })),
+
+      updateSavingsGoal: (id, updates) =>
+        set((state) => ({
+          savingsGoals: state.savingsGoals.map((g) => g.id === id ? { ...g, ...updates } : g),
+        })),
+
+      deleteSavingsGoal: (id) =>
+        set((state) => ({
+          savingsGoals: state.savingsGoals.filter((g) => g.id !== id),
+          savingsContributions: state.savingsContributions.filter((c) => c.goalId !== id),
+        })),
+
+      addContribution: (goalId, amount, cycleKey, note) =>
+        set((state) => {
+          const contribution: SavingsContribution = {
+            id: genId(),
+            goalId,
+            amount,
+            cycleKey,
+            date: new Date().toISOString().slice(0, 10),
+            note,
+          };
+          return {
+            savingsContributions: [...state.savingsContributions, contribution],
+            savingsGoals: state.savingsGoals.map((g) =>
+              g.id === goalId ? { ...g, savedAmount: g.savedAmount + amount } : g
+            ),
+          };
+        }),
+
+      deleteContribution: (id) =>
+        set((state) => {
+          const contrib = state.savingsContributions.find((c) => c.id === id);
+          if (!contrib) return {};
+          return {
+            savingsContributions: state.savingsContributions.filter((c) => c.id !== id),
+            savingsGoals: state.savingsGoals.map((g) =>
+              g.id === contrib.goalId ? { ...g, savedAmount: g.savedAmount - contrib.amount } : g
+            ),
+          };
+        }),
+
+      getContributionsForGoal: (goalId) =>
+        get().savingsContributions.filter((c) => c.goalId === goalId),
 
       // Custom categories
       addCustomCategory: (cat) =>
@@ -223,6 +415,14 @@ export const useBudgetStore = create<BudgetState>()(
         customCategories: state.customCategories,
         pinHash: state.pinHash,
         theme: state.theme,
+        billTemplates: state.billTemplates,
+        billPayments: state.billPayments,
+        billOverrides: state.billOverrides,
+        savingsGoals: state.savingsGoals,
+        savingsContributions: state.savingsContributions,
+        currentScreen: state.currentScreen,
+        billsCycleStart: state.billsCycleStart,
+        cycleSplitDay: state.cycleSplitDay,
       }),
     }
   )

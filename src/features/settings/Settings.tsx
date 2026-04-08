@@ -149,7 +149,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
       {/* Appearance */}
       <div>
         <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">Appearance</p>
-        <div className="bg-slate-800/60 rounded-xl p-4">
+        <div className="bg-slate-900 rounded-xl p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {isDark ? (
@@ -166,7 +166,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
             <button
               onClick={() => store.setTheme(isDark ? 'light' : 'dark')}
               className={`relative w-14 h-8 rounded-full transition-colors duration-300 ${
-                isDark ? 'bg-slate-700' : 'bg-emerald-500'
+                isDark ? 'bg-slate-800' : 'bg-emerald-500'
               }`}
             >
               {/* Track icons */}
@@ -212,10 +212,38 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         </div>
       </div> */}
 
+      {/* Cycle Configuration */}
+      <div>
+        <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">Cycle</p>
+        <div className="bg-slate-900 rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-slate-200">Split day</p>
+              <p className="text-xs text-slate-500">Cycles: 1–{store.cycleSplitDay} and {store.cycleSplitDay + 1}–end</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => store.setCycleSplitDay(Math.max(1, store.cycleSplitDay - 1))}
+                className="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center active:bg-slate-700"
+              >
+                −
+              </button>
+              <span className="text-lg font-bold text-white w-8 text-center">{store.cycleSplitDay}</span>
+              <button
+                onClick={() => store.setCycleSplitDay(Math.min(28, store.cycleSplitDay + 1))}
+                className="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center active:bg-slate-700"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Security */}
       <div>
         <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">Security</p>
-        <div className="bg-slate-800/60 rounded-xl p-4">
+        <div className="bg-slate-900 rounded-xl p-4">
           {!store.pinHash ? (
             <button
               onClick={() => setShowPinSetup(true)}
@@ -240,7 +268,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
                 </div>
                 <button
                   onClick={() => { setShowRemovePin(!showRemovePin); setRemovePinInput(''); setRemovePinError(false); }}
-                  className="text-xs text-red-400 bg-slate-700 px-3 py-1.5 rounded-lg"
+                  className="text-xs text-red-400 bg-slate-800 px-3 py-1.5 rounded-lg"
                 >
                   Remove
                 </button>
@@ -256,7 +284,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
                       value={removePinInput}
                       onChange={(e) => { setRemovePinInput(e.target.value.replace(/\D/g, '').slice(0, 4)); setRemovePinError(false); }}
                       placeholder="4-digit PIN"
-                      className="flex-1 bg-slate-700 rounded-lg px-3 py-2.5 text-sm text-white text-center tracking-[0.5em] placeholder:tracking-normal outline-none focus:ring-1 focus:ring-emerald-500/50"
+                      className="flex-1 bg-slate-800 rounded-lg px-3 py-2.5 text-sm text-white text-center tracking-[0.5em] placeholder:tracking-normal outline-none focus:ring-1 focus:ring-emerald-500/50"
                       autoFocus
                     />
                     <button
@@ -283,9 +311,9 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
       {/* Custom Categories */}
       <div>
         <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">Categories</p>
-        <div className="space-y-2 mb-3">
+        <div className="bg-slate-900 rounded-2xl overflow-hidden divide-y divide-slate-800 mb-3">
           {DEFAULT_CATEGORIES.map((cat) => (
-            <div key={cat} className="bg-slate-800/60 rounded-xl px-4 py-3 flex items-center justify-between">
+            <div key={cat} className="px-4 py-3 flex items-center justify-between">
               <span className="text-sm text-slate-300 flex items-center gap-2">
                 <CategoryIcon name={cat} size={16} className="text-slate-400" />
                 {cat}
@@ -294,14 +322,14 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
             </div>
           ))}
           {customCategories.map((cat) => (
-            <div key={cat.name} className="bg-slate-800/60 rounded-xl px-4 py-3 flex items-center justify-between">
+            <div key={cat.name} className="px-4 py-3 flex items-center justify-between">
               <span className="text-sm text-slate-300 flex items-center gap-2">
                 <CategoryIcon name={cat.icon} size={16} className="text-slate-400" />
                 {cat.name}
               </span>
               <button
                 onClick={() => store.removeCustomCategory(cat.name)}
-                className="text-xs text-red-400 bg-slate-700 px-2 py-1 rounded-lg"
+                className="text-xs text-red-400 bg-slate-800 px-2 py-1 rounded-lg"
               >
                 ×
               </button>
@@ -310,13 +338,13 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         </div>
 
         {showAddCategory ? (
-          <div className="bg-slate-800/60 rounded-xl p-4 space-y-3 animate-slide-up">
+          <div className="bg-slate-900 rounded-xl p-4 space-y-3 animate-slide-up">
             <input
               type="text"
               value={newCatName}
               onChange={(e) => setNewCatName(e.target.value)}
               placeholder="Category name"
-              className="w-full bg-slate-700 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+              className="w-full bg-slate-800 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
               autoFocus
             />
             <p className="text-xs text-slate-400">Choose an icon:</p>
@@ -326,7 +354,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
                   key={icon}
                   onClick={() => setNewCatIcon(icon)}
                   className={`flex flex-col items-center gap-1 py-2 rounded-lg transition-all ${
-                    newCatIcon === icon ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-400'
+                    newCatIcon === icon ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-400'
                   }`}
                 >
                   <CategoryIcon name={icon} size={18} />
@@ -344,7 +372,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
               </button>
               <button
                 onClick={() => { setShowAddCategory(false); setNewCatName(''); }}
-                className="px-4 py-2.5 rounded-lg text-sm bg-slate-700 text-slate-400"
+                className="px-4 py-2.5 rounded-lg text-sm bg-slate-800 text-slate-400"
               >
                 Cancel
               </button>
@@ -353,15 +381,15 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         ) : (
           <button
             onClick={() => setShowAddCategory(true)}
-            className="w-full py-2.5 rounded-xl text-sm font-medium bg-slate-800/60 text-emerald-400 active:bg-slate-800/80 transition-colors"
+            className="w-full py-2.5 rounded-xl text-sm font-medium bg-slate-900 text-emerald-400 active:bg-slate-800 transition-colors"
           >
             + Add Custom Category
           </button>
         )}
       </div>
 
-      {/* Budget Limits */}
-      <div>
+      {/* Budget Limits - hidden for now */}
+      {/* <div>
         <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">
           Budget Limits <span className="normal-case text-slate-500">(per cycle)</span>
         </p>
@@ -436,19 +464,19 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
             );
           })}
         </div>
-      </div>
+      </div> */}
 
       {/* Export Data */}
       <div>
         <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">Export Data</p>
-        <div className="bg-slate-800/60 rounded-xl p-4 space-y-3">
+        <div className="bg-slate-900 rounded-xl p-4 space-y-3">
           <div className="flex gap-2">
             {(['current', 'previous', 'all'] as const).map((scope) => (
               <button
                 key={scope}
                 onClick={() => setExportScope(scope)}
                 className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-                  exportScope === scope ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-400'
+                  exportScope === scope ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-400'
                 }`}
               >
                 {scope === 'current' ? 'Current' : scope === 'previous' ? 'Previous' : 'All Time'}
@@ -464,10 +492,46 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         </div>
       </div>
 
+      {/* Storage */}
+      <div>
+        <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">Storage</p>
+        {(() => {
+          const MAX_BYTES = 5 * 1024 * 1024; // 5 MB typical localStorage limit
+          let usedBytes = 0;
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key) {
+              usedBytes += (key.length + (localStorage.getItem(key)?.length ?? 0)) * 2; // UTF-16
+            }
+          }
+          const usedKB = (usedBytes / 1024).toFixed(1);
+          const totalKB = (MAX_BYTES / 1024).toFixed(0);
+          const pct = Math.min((usedBytes / MAX_BYTES) * 100, 100);
+          const isWarning = pct > 80;
+          return (
+            <div className="bg-slate-900 rounded-xl p-4 space-y-2.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-300">{usedKB} KB used</span>
+                <span className="text-slate-500">{totalKB} KB total</span>
+              </div>
+              <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-500 ${isWarning ? 'bg-red-500' : 'bg-emerald-500'}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <p className="text-xs text-slate-500">
+                {pct < 50 ? 'Plenty of space' : pct < 80 ? 'Storage is filling up' : 'Running low — consider exporting or backing up your data'}
+              </p>
+            </div>
+          );
+        })()}
+      </div>
+
       {/* Backup & Restore */}
       <div>
         <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">Backup & Restore</p>
-        <div className="bg-slate-800/60 rounded-xl p-4 space-y-3">
+        <div className="bg-slate-900 rounded-xl p-4 space-y-3">
           <p className="text-xs text-slate-500">
             Back up all your data (transactions, settings, budgets) to a file, or restore from a previous backup.
           </p>
@@ -486,7 +550,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full py-3 rounded-xl text-sm font-bold bg-slate-700 text-slate-200 active:scale-[0.98] transition-transform"
+            className="w-full py-3 rounded-xl text-sm font-bold bg-slate-800 text-slate-200 active:scale-[0.98] transition-transform"
           >
             Restore from Backup
           </button>
@@ -502,7 +566,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
       {/* Restore Confirmation Modal */}
       {showRestoreConfirm && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-6">
-          <div className="bg-slate-800 rounded-2xl p-6 w-full max-w-sm space-y-4">
+          <div className="bg-slate-900 rounded-2xl p-6 w-full max-w-sm space-y-4">
             <h3 className="text-white font-semibold text-base">Restore Backup?</h3>
             <p className="text-sm text-slate-400">
               This will replace all your current data with the backup. This action cannot be undone.
@@ -510,7 +574,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
             <div className="flex gap-3">
               <button
                 onClick={() => { setShowRestoreConfirm(false); setPendingRestore(null); }}
-                className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-slate-700 text-slate-300"
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium bg-slate-800 text-slate-300"
               >
                 Cancel
               </button>
@@ -530,7 +594,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">Recurring Expenses</p>
         <button
           onClick={() => onNavigate('recurring')}
-          className="w-full bg-slate-800/60 rounded-xl p-4 flex items-center justify-between active:bg-slate-800/80 transition-colors"
+          className="w-full bg-slate-900 rounded-xl p-4 flex items-center justify-between active:bg-slate-800 transition-colors"
         >
           <div className="flex items-center gap-3">
             <RepeatIcon size={20} className="text-emerald-400" />

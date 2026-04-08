@@ -21,8 +21,8 @@ export function Toast({ message, action, duration = 5000, onDismiss }: ToastProp
   return (
     <div
       className={`fixed bottom-20 left-4 right-4 max-w-2xl mx-auto z-50
-        bg-slate-800 rounded-xl px-4 py-3 flex items-center justify-between
-        ring-1 ring-slate-700 ${exiting ? 'animate-fade-out' : 'animate-slide-up'}`}
+        bg-slate-900 rounded-xl px-4 py-3 flex items-center justify-between
+        ring-1 ring-slate-800 ${exiting ? 'animate-fade-out' : 'animate-slide-up'}`}
     >
       <span className="text-sm text-slate-200">{message}</span>
       {action && (

@@ -5,7 +5,7 @@ import { todayStr } from '../../shared/utils/cycle';
 import { getCategoryIconName } from '../../shared/utils/categories';
 import { CategoryIcon, ArrowLeftIcon, DeleteIcon, CheckCircleIcon } from '../../shared/components/Icons';
 
-export function AddExpense({ onNavigate }: { onNavigate: (s: Screen) => void }) {
+export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavigate: (s: Screen) => void; returnScreen?: Screen }) {
   const store = useBudgetStore();
   const addTransaction = store.addTransaction;
   const categories = store.getAllCategories();
@@ -13,6 +13,7 @@ export function AddExpense({ onNavigate }: { onNavigate: (s: Screen) => void }) 
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('Food');
   const [tag, setTag] = useState<Tag>('needs');
+  const [date, setDate] = useState(todayStr());
   const [note, setNote] = useState('');
   const [saved, setSaved] = useState(false);
 
@@ -31,17 +32,18 @@ export function AddExpense({ onNavigate }: { onNavigate: (s: Screen) => void }) 
 
   function handleSave() {
     if (numericAmount <= 0) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(new Date(date + 'T00:00:00').getTime())) return;
     addTransaction({
       type: 'expense',
       amount: numericAmount,
       category,
       tag,
-      date: todayStr(),
+      date,
       note: note.trim() || undefined,
     });
     setSaved(true);
     setTimeout(() => {
-      onNavigate('dashboard');
+      onNavigate(returnScreen);
     }, 600);
   }
 
@@ -63,7 +65,7 @@ export function AddExpense({ onNavigate }: { onNavigate: (s: Screen) => void }) 
       {/* Header */}
       <div className="sticky top-0 z-10 bg-slate-950 flex items-center justify-between pb-3 -mx-4 px-4 pt-0">
         <button
-          onClick={() => onNavigate('dashboard')}
+          onClick={() => onNavigate(returnScreen)}
           className="text-slate-400 p-2 -ml-2 flex items-center gap-1"
         >
           <ArrowLeftIcon size={18} />
@@ -89,7 +91,7 @@ export function AddExpense({ onNavigate }: { onNavigate: (s: Screen) => void }) 
             className={`px-3 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 shrink-0 ${
               category === cat
                 ? 'bg-emerald-500 text-white scale-105'
-                : 'bg-slate-800 text-slate-300'
+                : 'bg-slate-900 text-slate-300'
             }`}
           >
             <CategoryIcon name={getCategoryIconName(cat, customCategories)} size={16} />
@@ -105,7 +107,7 @@ export function AddExpense({ onNavigate }: { onNavigate: (s: Screen) => void }) 
           className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
             tag === 'needs'
               ? 'bg-blue-500 text-white'
-              : 'bg-slate-800 text-slate-400'
+              : 'bg-slate-900 text-slate-400'
           }`}
         >
           Needs
@@ -115,21 +117,29 @@ export function AddExpense({ onNavigate }: { onNavigate: (s: Screen) => void }) 
           className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
             tag === 'wants'
               ? 'bg-purple-500 text-white'
-              : 'bg-slate-800 text-slate-400'
+              : 'bg-slate-900 text-slate-400'
           }`}
         >
           Wants
         </button>
       </div>
 
-      {/* Note input */}
-      <input
-        type="text"
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        placeholder="Add a note (optional)"
-        className="bg-slate-800/60 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-3"
-      />
+      {/* Note & Date */}
+      <div className="flex gap-2 mb-3">
+        <input
+          type="text"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Note (optional)"
+          className="flex-1 bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+        />
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="bg-slate-900 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 [color-scheme:dark]"
+        />
+      </div>
 
       {/* Numpad */}
       <div className="grid grid-cols-3 gap-2 flex-1 max-h-[280px]">
@@ -140,8 +150,8 @@ export function AddExpense({ onNavigate }: { onNavigate: (s: Screen) => void }) 
               onClick={() => handleKeypad(key)}
               className={`rounded-xl text-xl font-semibold transition-all active:scale-95 flex items-center justify-center ${
                 key === 'del'
-                  ? 'bg-slate-700 text-red-400'
-                  : 'bg-slate-800 text-white active:bg-slate-700'
+                  ? 'bg-slate-800 text-red-400'
+                  : 'bg-slate-900 text-white active:bg-slate-800'
               }`}
             >
               {key === 'del' ? <DeleteIcon size={22} /> : key}

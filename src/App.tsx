@@ -12,28 +12,46 @@ import { RecurringManage } from './features/recurring/RecurringManage';
 import { Analytics } from './features/analytics/Analytics';
 import { LockScreen } from './features/security/LockScreen';
 import { InstallPrompt } from './features/pwa/InstallPrompt';
-import { WalletIcon, ReceiptIcon, SettingsIcon, ChartPieIcon } from './shared/components/Icons';
+import { Bills } from './features/bills/Bills';
+import { Savings } from './features/savings/Savings';
+import { WalletIcon, ReceiptIcon, SettingsIcon, ChartPieIcon, ClipboardCheckIcon } from './shared/components/Icons';
 
 export default function App() {
   const pinHash = useBudgetStore((s) => s.pinHash);
   const theme = useBudgetStore((s) => s.theme);
   const [isLocked, setIsLocked] = useState(() => !!useBudgetStore.getState().pinHash);
-  const [screen, setScreen] = useState<Screen>('dashboard');
+  const storedScreen = useBudgetStore((s) => s.currentScreen);
+  const setCurrentScreen = useBudgetStore((s) => s.setCurrentScreen);
   const [fabOpen, setFabOpen] = useState(false);
   const [editTransactionId, setEditTransactionId] = useState<string | null>(null);
+  const [previousScreen, setPreviousScreen] = useState<Screen>('dashboard');
+  // Edit screens need a transaction ID; fall back to dashboard on reload
+  const screen = (storedScreen === 'edit-expense' || storedScreen === 'edit-income') && !editTransactionId
+    ? 'dashboard'
+    : storedScreen;
+
+  // Sync persisted screen if we fell back
+  useEffect(() => {
+    if (screen !== storedScreen) setCurrentScreen(screen);
+  }, [screen, storedScreen, setCurrentScreen]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     document.querySelector('meta[name="theme-color"]')?.setAttribute(
       'content',
-      theme === 'dark' ? '#0f172a' : '#ffffff'
+      theme === 'dark' ? '#000000' : '#FFFFFF'
     );
   }, [theme]);
 
   function navigate(s: Screen, txId?: string) {
     setFabOpen(false);
+    // Track where we came from (only for main screens, not form screens)
+    const formScreens: Screen[] = ['add-expense', 'add-income', 'edit-expense', 'edit-income'];
+    if (!formScreens.includes(screen)) {
+      setPreviousScreen(screen);
+    }
     setEditTransactionId(txId ?? null);
-    setScreen(s);
+    setCurrentScreen(s);
   }
 
   return (
@@ -46,20 +64,22 @@ export default function App() {
       {/* Screen content */}
       <div key={screen + (editTransactionId ?? '')} className="animate-fade-in">
         {screen === 'dashboard' && <Dashboard onNavigate={navigate} />}
-        {screen === 'add-expense' && <AddExpense onNavigate={navigate} />}
-        {screen === 'add-income' && <AddIncome onNavigate={navigate} />}
+        {screen === 'add-expense' && <AddExpense onNavigate={navigate} returnScreen={previousScreen} />}
+        {screen === 'add-income' && <AddIncome onNavigate={navigate} returnScreen={previousScreen} />}
         {screen === 'summary' && <Summary onNavigate={navigate} />}
         {screen === 'settings' && <Settings onNavigate={navigate} />}
         {screen === 'edit-expense' && editTransactionId && <EditExpense onNavigate={navigate} transactionId={editTransactionId} />}
         {screen === 'edit-income' && editTransactionId && <EditIncome onNavigate={navigate} transactionId={editTransactionId} />}
         {screen === 'analytics' && <Analytics onNavigate={navigate} />}
         {screen === 'recurring' && <RecurringManage onNavigate={navigate} />}
+        {screen === 'bills' && <Bills onNavigate={navigate} />}
+        {screen === 'savings' && <Savings onNavigate={navigate} />}
       </div>
 
       <InstallPrompt />
 
       {/* Bottom navigation - shown on main tab screens, hidden when locked */}
-      {!isLocked && (['dashboard', 'summary', 'analytics', 'settings'] as const).includes(screen as any) && (
+      {!isLocked && (['dashboard', 'bills', 'summary', 'savings', 'analytics', 'settings'] as const).includes(screen as any) && (
         <>
           {/* FAB overlay */}
           {fabOpen && (
@@ -105,15 +125,13 @@ export default function App() {
                 <span className="text-[10px] font-medium">Home</span>
               </button>
 
-              {/* Summary */}
+              {/* Bills */}
               <button
-                onClick={() => navigate('summary')}
-                className={`flex flex-col items-center gap-0.5 ${screen === 'summary' ? 'text-emerald-400' : 'text-slate-400'}`}
+                onClick={() => navigate('bills')}
+                className={`flex flex-col items-center gap-0.5 ${screen === 'bills' ? 'text-emerald-400' : 'text-slate-400'}`}
               >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-                <span className="text-[10px] font-medium">Summary</span>
+                <ClipboardCheckIcon size={24} />
+                <span className="text-[10px] font-medium">Bills</span>
               </button>
 
               {/* FAB */}
@@ -121,7 +139,7 @@ export default function App() {
                 onClick={() => setFabOpen(!fabOpen)}
                 className={`-mt-8 mx-auto w-14 h-14 rounded-full flex items-center justify-center transition-all active:scale-95 ${
                   fabOpen
-                    ? 'bg-slate-600 rotate-45'
+                    ? 'bg-slate-500 rotate-45'
                     : 'bg-emerald-500'
                 }`}
               >
@@ -130,13 +148,15 @@ export default function App() {
                 </svg>
               </button>
 
-              {/* Analytics */}
+              {/* Savings */}
               <button
-                onClick={() => navigate('analytics')}
-                className={`flex flex-col items-center gap-0.5 ${screen === 'analytics' ? 'text-emerald-400' : 'text-slate-400'}`}
+                onClick={() => navigate('savings')}
+                className={`flex flex-col items-center gap-0.5 ${screen === 'savings' ? 'text-emerald-400' : 'text-slate-400'}`}
               >
-                <ChartPieIcon size={24} />
-                <span className="text-[10px] font-medium">Analytics</span>
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+                </svg>
+                <span className="text-[10px] font-medium">Savings</span>
               </button>
 
               {/* Settings */}

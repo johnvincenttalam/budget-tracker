@@ -84,7 +84,7 @@ export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Scr
             key={cat}
             onClick={() => setCategory(cat)}
             className={`px-3 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-1.5 shrink-0 ${
-              category === cat ? 'bg-emerald-500 text-white scale-105' : 'bg-slate-800 text-slate-300'
+              category === cat ? 'bg-emerald-500 text-white scale-105' : 'bg-slate-900 text-slate-300'
             }`}
           >
             <CategoryIcon name={getCategoryIconName(cat, customCategories)} size={16} />
@@ -97,11 +97,11 @@ export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Scr
       <div className="flex justify-center gap-2 mb-3">
         <button
           onClick={() => setTag('needs')}
-          className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${tag === 'needs' ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-400'}`}
+          className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${tag === 'needs' ? 'bg-blue-500 text-white' : 'bg-slate-900 text-slate-400'}`}
         >Needs</button>
         <button
           onClick={() => setTag('wants')}
-          className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${tag === 'wants' ? 'bg-purple-500 text-white' : 'bg-slate-800 text-slate-400'}`}
+          className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${tag === 'wants' ? 'bg-purple-500 text-white' : 'bg-slate-900 text-slate-400'}`}
         >Wants</button>
       </div>
 
@@ -111,7 +111,7 @@ export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Scr
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="Note (optional)"
-        className="bg-slate-800/60 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-2"
+        className="bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-2"
       />
 
       {/* Date */}
@@ -119,7 +119,7 @@ export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Scr
         type="date"
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        className="bg-slate-800/60 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 mb-3 [color-scheme:dark]"
+        className="bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 mb-3 [color-scheme:dark]"
       />
 
       {/* Numpad */}
@@ -129,7 +129,7 @@ export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Scr
             key={key}
             onClick={() => handleKeypad(key)}
             className={`rounded-xl text-xl font-semibold transition-all active:scale-95 flex items-center justify-center ${
-              key === 'del' ? 'bg-slate-700 text-red-400' : 'bg-slate-800 text-white active:bg-slate-700'
+              key === 'del' ? 'bg-slate-800 text-red-400' : 'bg-slate-900 text-white active:bg-slate-800'
             }`}
           >
             {key === 'del' ? <DeleteIcon size={22} /> : key}

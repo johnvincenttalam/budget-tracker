@@ -5,17 +5,34 @@ function lastDay(year: number, month: number): number {
   return new Date(year, month, 0).getDate();
 }
 
+/** Read the user's configured cycle split day from localStorage */
+function getSplitDay(): number {
+  try {
+    const data = JSON.parse(localStorage.getItem('budget-tracker-storage') || '{}');
+    return data.state?.cycleSplitDay ?? 15;
+  } catch {
+    return 15;
+  }
+}
+
 /** Get cycle containing a given date */
 export function getCycleForDate(dateStr: string): Cycle {
   const d = new Date(dateStr + 'T00:00:00');
   const year = d.getFullYear();
   const month = d.getMonth(); // 0-indexed
   const day = d.getDate();
+  const split = getSplitDay();
+  const monthEnd = lastDay(year, month + 1);
 
-  if (day <= 15) {
-    return buildCycle(year, month, 1, 15);
+  // If split >= last day of month, entire month is one cycle
+  if (split >= monthEnd) {
+    return buildCycle(year, month, 1, monthEnd);
   }
-  return buildCycle(year, month, 16, lastDay(year, month + 1));
+
+  if (day <= split) {
+    return buildCycle(year, month, 1, split);
+  }
+  return buildCycle(year, month, split + 1, monthEnd);
 }
 
 /** Get the current cycle */
@@ -25,29 +42,21 @@ export function getCurrentCycle(): Cycle {
 
 /** Get the previous cycle relative to the current one */
 export function getPreviousCycle(): Cycle {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const day = now.getDate();
-
-  if (day <= 15) {
-    // Previous cycle is last month 16–end
-    const prevMonth = month === 0 ? 11 : month - 1;
-    const prevYear = month === 0 ? year - 1 : year;
-    return buildCycle(prevYear, prevMonth, 16, lastDay(prevYear, prevMonth + 1));
-  }
-  // Previous cycle is this month 1–15
-  return buildCycle(year, month, 1, 15);
+  const current = getCurrentCycle();
+  return getPrevCycle(current);
 }
 
 function buildCycle(year: number, month: number, startDay: number, endDay: number): Cycle {
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const pad = (n: number) => String(n).padStart(2, '0');
+  const maxDay = lastDay(year, month + 1);
+  const validStart = Math.min(startDay, maxDay);
+  const validEnd = Math.min(endDay, maxDay);
 
   return {
-    label: `${monthNames[month]} ${startDay}–${endDay}`,
-    startDate: `${year}-${pad(month + 1)}-${pad(startDay)}`,
-    endDate: `${year}-${pad(month + 1)}-${pad(endDay)}`,
+    label: `${monthNames[month]} ${validStart}–${validEnd}`,
+    startDate: `${year}-${pad(month + 1)}-${pad(validStart)}`,
+    endDate: `${year}-${pad(month + 1)}-${pad(validEnd)}`,
   };
 }
 
@@ -76,6 +85,22 @@ export function getRecentCycles(count: number): Cycle[] {
   }
 
   return cycles.reverse();
+}
+
+/** Get the next cycle after a given cycle */
+export function getNextCycle(cycle: Cycle): Cycle {
+  const endDate = new Date(cycle.endDate + 'T00:00:00');
+  const nextDay = new Date(endDate.getTime() + 86400000);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return getCycleForDate(`${nextDay.getFullYear()}-${pad(nextDay.getMonth() + 1)}-${pad(nextDay.getDate())}`);
+}
+
+/** Get the previous cycle before a given cycle */
+export function getPrevCycle(cycle: Cycle): Cycle {
+  const startDate = new Date(cycle.startDate + 'T00:00:00');
+  const prevDay = new Date(startDate.getTime() - 86400000);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return getCycleForDate(`${prevDay.getFullYear()}-${pad(prevDay.getMonth() + 1)}-${pad(prevDay.getDate())}`);
 }
 
 /** Today as YYYY-MM-DD */

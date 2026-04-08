@@ -66,7 +66,7 @@ export function EditIncome({ onNavigate, transactionId }: { onNavigate: (s: Scre
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         placeholder="0.00"
-        className="bg-slate-800/60 rounded-xl px-4 py-4 text-3xl font-bold text-white placeholder:text-slate-600 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5 text-center"
+        className="bg-slate-900 rounded-xl px-4 py-4 text-3xl font-bold text-white placeholder:text-slate-600 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5 text-center"
         autoFocus
       />
 
@@ -78,7 +78,7 @@ export function EditIncome({ onNavigate, transactionId }: { onNavigate: (s: Scre
             key={s}
             onClick={() => setSource(s)}
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              source === s ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-300'
+              source === s ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-slate-300'
             }`}
           >
             {s}
@@ -90,7 +90,7 @@ export function EditIncome({ onNavigate, transactionId }: { onNavigate: (s: Scre
         value={source}
         onChange={(e) => setSource(e.target.value)}
         placeholder="Or type a source..."
-        className="bg-slate-800/60 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5"
+        className="bg-slate-900 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5"
       />
 
       {/* Date */}
@@ -99,7 +99,7 @@ export function EditIncome({ onNavigate, transactionId }: { onNavigate: (s: Scre
         type="date"
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        className="bg-slate-800/60 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5 [color-scheme:dark]"
+        className="bg-slate-900 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5 [color-scheme:dark]"
       />
 
       {/* Note */}
@@ -109,7 +109,7 @@ export function EditIncome({ onNavigate, transactionId }: { onNavigate: (s: Scre
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="Add a note (optional)"
-        className="bg-slate-800/60 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-8"
+        className="bg-slate-900 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-8"
       />
 
       {/* Save */}

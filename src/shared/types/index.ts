@@ -50,6 +50,53 @@ export type RecurringTemplate = {
   enabled: boolean;
 };
 
+export type BillTemplate = {
+  id: string;
+  name: string;
+  amount: number;
+  category: Category;
+  dueDay: number; // day of month (1-31)
+  note?: string;
+  enabled: boolean;
+  totalInstallments?: number; // e.g. 6 for a 6-month plan
+  currentInstallment?: number; // e.g. 2 means this is payment 2 of totalInstallments
+  createdInCycle?: string; // cycle startDate when this bill was first added
+  oneTimeCycle?: string; // if set, bill only appears in this specific cycle
+};
+
+export type BillPayment = {
+  billId: string;
+  cycleKey: string; // cycle startDate as unique key
+  paidAt: string;
+  transactionId: string;
+};
+
+export type BillOverride = {
+  billId: string;
+  cycleKey: string;
+  amount?: number;
+  note?: string;
+};
+
+export type SavingsGoal = {
+  id: string;
+  name: string;
+  targetAmount: number;
+  savedAmount: number;
+  icon: string;
+  color: string;
+  createdAt: string;
+};
+
+export type SavingsContribution = {
+  id: string;
+  goalId: string;
+  amount: number; // positive = deposit, negative = withdrawal
+  cycleKey: string;
+  date: string;
+  note?: string;
+};
+
 export type Screen =
   | 'dashboard'
   | 'add-expense'
@@ -59,4 +106,6 @@ export type Screen =
   | 'settings'
   | 'recurring'
   | 'edit-expense'
-  | 'edit-income';
+  | 'edit-income'
+  | 'bills'
+  | 'savings';

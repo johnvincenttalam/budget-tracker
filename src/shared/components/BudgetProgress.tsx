@@ -22,7 +22,7 @@ export function BudgetProgress({ spent, limit, symbol }: BudgetProgressProps) {
         </span>
         <span className={textColor}>{Math.round(pct)}%</span>
       </div>
-      <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
         <div
           className={`h-full ${barColor} rounded-full transition-all duration-500`}
           style={{ width: `${Math.min(pct, 100)}%` }}

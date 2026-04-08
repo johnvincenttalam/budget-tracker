@@ -57,7 +57,7 @@ export function RecurringManage({ onNavigate }: { onNavigate: (s: Screen) => voi
       </div>
 
       {/* Add form */}
-      <div className="bg-slate-800/60 rounded-xl p-4 space-y-3">
+      <div className="bg-slate-900 rounded-xl p-4 space-y-3">
         <p className="text-xs text-slate-400 uppercase tracking-wider">Add New</p>
 
         <input
@@ -66,7 +66,7 @@ export function RecurringManage({ onNavigate }: { onNavigate: (s: Screen) => voi
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Amount"
-          className="w-full bg-slate-700 rounded-lg px-4 py-3 text-lg font-bold text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 text-center"
+          className="w-full bg-slate-800 rounded-lg px-4 py-3 text-lg font-bold text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 text-center"
         />
 
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -75,7 +75,7 @@ export function RecurringManage({ onNavigate }: { onNavigate: (s: Screen) => voi
               key={cat}
               onClick={() => setCategory(cat)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 shrink-0 ${
-                category === cat ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-300'
+                category === cat ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-300'
               }`}
             >
               <CategoryIcon name={getCategoryIconName(cat, customCategories)} size={14} />
@@ -88,13 +88,13 @@ export function RecurringManage({ onNavigate }: { onNavigate: (s: Screen) => voi
           <button
             onClick={() => setTag('needs')}
             className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-              tag === 'needs' ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-400'
+              tag === 'needs' ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-400'
             }`}
           >Needs</button>
           <button
             onClick={() => setTag('wants')}
             className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
-              tag === 'wants' ? 'bg-purple-500 text-white' : 'bg-slate-700 text-slate-400'
+              tag === 'wants' ? 'bg-purple-500 text-white' : 'bg-slate-800 text-slate-400'
             }`}
           >Wants</button>
         </div>
@@ -104,7 +104,7 @@ export function RecurringManage({ onNavigate }: { onNavigate: (s: Screen) => voi
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Note (optional)"
-          className="w-full bg-slate-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+          className="w-full bg-slate-800 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
         />
 
         <button
@@ -124,11 +124,11 @@ export function RecurringManage({ onNavigate }: { onNavigate: (s: Screen) => voi
         {templates.length === 0 ? (
           <p className="text-center text-slate-500 text-sm py-6">No recurring expenses yet</p>
         ) : (
-          <div className="space-y-2">
+          <div className="bg-slate-900 rounded-2xl overflow-hidden divide-y divide-slate-800">
             {templates.map((t) => (
               <div
                 key={t.id}
-                className="bg-slate-800/40 rounded-xl px-4 py-3 flex items-center justify-between"
+                className="px-4 py-3 flex items-center justify-between"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-red-500/15 text-red-400">
@@ -153,7 +153,7 @@ export function RecurringManage({ onNavigate }: { onNavigate: (s: Screen) => voi
                   <button
                     onClick={() => store.toggleRecurringTemplate(t.id)}
                     className={`text-[10px] px-2 py-1 rounded-lg transition-all ${
-                      t.enabled ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-500'
+                      t.enabled ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-500'
                     }`}
                   >
                     {t.enabled ? 'ON' : 'OFF'}
@@ -161,7 +161,7 @@ export function RecurringManage({ onNavigate }: { onNavigate: (s: Screen) => voi
                   <button
                     onClick={() => handleDelete(t.id)}
                     className={`text-xs px-2 py-1 rounded-lg transition-all duration-200 ${
-                      confirmDelete === t.id ? 'bg-red-500 text-white scale-110' : 'bg-slate-700 text-slate-400 scale-100'
+                      confirmDelete === t.id ? 'bg-red-500 text-white scale-110' : 'bg-slate-800 text-slate-400 scale-100'
                     }`}
                   >
                     {confirmDelete === t.id ? 'Sure?' : '×'}

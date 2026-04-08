@@ -4,7 +4,7 @@ import { todayStr } from '../../shared/utils/cycle';
 import { ArrowLeftIcon, CheckCircleIcon } from '../../shared/components/Icons';
 import type { Screen } from '../../shared/types';
 
-export function AddIncome({ onNavigate }: { onNavigate: (s: Screen) => void }) {
+export function AddIncome({ onNavigate, returnScreen = 'dashboard' }: { onNavigate: (s: Screen) => void; returnScreen?: Screen }) {
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const [amount, setAmount] = useState('');
   const [source, setSource] = useState('');
@@ -27,7 +27,7 @@ export function AddIncome({ onNavigate }: { onNavigate: (s: Screen) => void }) {
     });
     setSaved(true);
     setTimeout(() => {
-      onNavigate('dashboard');
+      onNavigate(returnScreen);
     }, 600);
   }
 
@@ -49,7 +49,7 @@ export function AddIncome({ onNavigate }: { onNavigate: (s: Screen) => void }) {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-slate-950 flex items-center justify-between pb-3 -mx-4 px-4 pt-0">
         <button
-          onClick={() => onNavigate('dashboard')}
+          onClick={() => onNavigate(returnScreen)}
           className="text-slate-400 p-2 -ml-2 flex items-center gap-1"
         >
           <ArrowLeftIcon size={18} />
@@ -67,7 +67,7 @@ export function AddIncome({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         placeholder="0.00"
-        className="bg-slate-800/60 rounded-xl px-4 py-4 text-3xl font-bold text-white placeholder:text-slate-600 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5 text-center"
+        className="bg-slate-900 rounded-xl px-4 py-4 text-3xl font-bold text-white placeholder:text-slate-600 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5 text-center"
         autoFocus
       />
 
@@ -81,7 +81,7 @@ export function AddIncome({ onNavigate }: { onNavigate: (s: Screen) => void }) {
             className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
               source === s
                 ? 'bg-emerald-500 text-white'
-                : 'bg-slate-800 text-slate-300'
+                : 'bg-slate-900 text-slate-300'
             }`}
           >
             {s}
@@ -93,7 +93,7 @@ export function AddIncome({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         value={source}
         onChange={(e) => setSource(e.target.value)}
         placeholder="Or type a source..."
-        className="bg-slate-800/60 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5"
+        className="bg-slate-900 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5"
       />
 
       {/* Date */}
@@ -102,7 +102,7 @@ export function AddIncome({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         type="date"
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        className="bg-slate-800/60 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5 [color-scheme:dark]"
+        className="bg-slate-900 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5 [color-scheme:dark]"
       />
 
       {/* Note */}
@@ -112,7 +112,7 @@ export function AddIncome({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="Add a note (optional)"
-        className="bg-slate-800/60 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-8"
+        className="bg-slate-900 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-8"
       />
 
       {/* Save */}

@@ -3,7 +3,7 @@ import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import { formatMoney } from '../../shared/utils/format';
 import type { Cycle } from '../../shared/types';
 
-const COLORS = { needs: '#3b82f6', wants: '#a855f7' };
+const COLORS = { needs: '#0A84FF', wants: '#BF5AF2' };
 
 export function NeedsWantsChart({ cycle }: { cycle: Cycle }) {
   const store = useBudgetStore();
@@ -22,7 +22,7 @@ export function NeedsWantsChart({ cycle }: { cycle: Cycle }) {
   const wantsPct = 100 - needsPct;
 
   return (
-    <div className="bg-slate-800/60 rounded-xl p-4">
+    <div className="bg-slate-900 rounded-2xl p-4">
       <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">Needs vs Wants</p>
       <div className="flex items-center gap-4">
         <div className="w-28 h-28 shrink-0">

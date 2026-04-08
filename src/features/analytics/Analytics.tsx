@@ -5,6 +5,7 @@ import { formatMoney } from '../../shared/utils/format';
 import { getCategoryIconName } from '../../shared/utils/categories';
 import { CategoryIcon } from '../../shared/components/Icons';
 import { SpendingTrendsChart } from './SpendingTrendsChart';
+import { IncomeExpenseChart } from './IncomeExpenseChart';
 import { NeedsWantsChart } from './NeedsWantsChart';
 import type { Screen } from '../../shared/types';
 
@@ -59,7 +60,7 @@ export function Analytics({ onNavigate: _onNavigate }: { onNavigate: (s: Screen)
       </div>
 
       {/* Cycle toggle */}
-      <div className="flex bg-slate-800/60 rounded-xl p-1">
+      <div className="flex bg-slate-900 rounded-2xl p-1">
         <button
           onClick={() => setTab('current')}
           className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
@@ -83,12 +84,15 @@ export function Analytics({ onNavigate: _onNavigate }: { onNavigate: (s: Screen)
       {/* Spending Trends Chart */}
       <SpendingTrendsChart />
 
+      {/* Income vs Expenses Chart */}
+      <IncomeExpenseChart />
+
       {/* Needs vs Wants Donut Chart */}
       <NeedsWantsChart cycle={cycle} />
 
       {/* Average Daily Spend */}
       {expenses > 0 && (
-        <div className="bg-slate-800/60 rounded-xl p-4 flex items-center justify-between">
+        <div className="bg-slate-900 rounded-2xl p-4 flex items-center justify-between">
           <div>
             <p className="text-xs text-slate-400 mb-0.5">Avg. Daily Spend</p>
             <p className="text-lg font-bold text-white">{formatMoney(avgDaily, sym)}</p>
@@ -104,7 +108,7 @@ export function Analytics({ onNavigate: _onNavigate }: { onNavigate: (s: Screen)
 
       {/* Top Spending Category */}
       {topCategory && (
-        <div className="bg-slate-800/60 rounded-xl p-4">
+        <div className="bg-slate-900 rounded-2xl p-4">
           <p className="text-xs text-slate-400 mb-2 uppercase tracking-wider">Top Category</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -124,10 +128,10 @@ export function Analytics({ onNavigate: _onNavigate }: { onNavigate: (s: Screen)
       )}
 
       {/* Cycle Comparison */}
-      <div className="bg-slate-800/60 rounded-xl p-4">
+      <div className="bg-slate-900 rounded-2xl p-4">
         <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">Cycle Comparison</p>
         <div className="space-y-2">
-          <div className="grid grid-cols-3 gap-2 text-center pb-1 border-b border-slate-700/50">
+          <div className="grid grid-cols-3 gap-2 text-center pb-1 border-b border-slate-800">
             <div />
             <p className="text-[10px] text-emerald-400 font-medium uppercase">Current</p>
             <p className="text-[10px] text-slate-500 font-medium uppercase">Previous</p>

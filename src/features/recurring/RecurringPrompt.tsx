@@ -73,8 +73,8 @@ export function RecurringPrompt() {
                 key={t.id}
                 className={`rounded-xl px-4 py-3 flex items-center justify-between transition-all ${
                   isConfirmed ? 'bg-emerald-500/10 ring-1 ring-emerald-500/30' :
-                  isSkipped ? 'bg-slate-800/30 opacity-50' :
-                  'bg-slate-800/60'
+                  isSkipped ? 'bg-slate-900 opacity-50' :
+                  'bg-slate-900'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -98,7 +98,7 @@ export function RecurringPrompt() {
                       </button>
                       <button
                         onClick={() => handleSkip(t.id)}
-                        className="bg-slate-700 text-slate-400 px-3 py-1.5 rounded-lg text-xs font-medium active:scale-95 transition-transform"
+                        className="bg-slate-800 text-slate-400 px-3 py-1.5 rounded-lg text-xs font-medium active:scale-95 transition-transform"
                       >
                         Skip
                       </button>
@@ -115,7 +115,7 @@ export function RecurringPrompt() {
         <button
           onClick={handleDone}
           className={`w-full py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.98] ${
-            allHandled ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-300'
+            allHandled ? 'bg-emerald-500 text-white' : 'bg-slate-800 text-slate-300'
           }`}
         >
           {allHandled ? 'Done' : 'Dismiss'}

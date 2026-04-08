@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
-import { getCurrentCycle, getPreviousCycle } from '../../shared/utils/cycle';
+import { ClipboardCheckIcon } from '../../shared/components/Icons';
+import { getCurrentCycle, getNextCycle, getPrevCycle } from '../../shared/utils/cycle';
 import { formatMoney } from '../../shared/utils/format';
 import { getCategoryIconName } from '../../shared/utils/categories';
-import { CategoryIcon, EmptyWalletIcon } from '../../shared/components/Icons';
+import { CategoryIcon, EmptyWalletIcon, ChartPieIcon, SavingsIconComponent } from '../../shared/components/Icons';
 import { BudgetProgress } from '../../shared/components/BudgetProgress';
 import { RecurringPrompt } from '../recurring/RecurringPrompt';
 import type { Screen } from '../../shared/types';
@@ -11,7 +13,8 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const store = useBudgetStore();
   const customCategories = store.customCategories;
   const sym = store.currencySymbol;
-  const cycle = getCurrentCycle();
+  const [cycle, setCycle] = useState(() => getCurrentCycle());
+  const isCurrentCycle = cycle.startDate === getCurrentCycle().startDate;
   const income = store.getTotalIncome(cycle);
   const expenses = store.getTotalExpenses(cycle);
   const balance = store.getBalance(cycle);
@@ -29,28 +32,63 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
     })
     .slice(0, 5);
 
-  // Previous cycle
-  const prevCycle = getPreviousCycle();
-  const prevBalance = store.getBalance(prevCycle);
+  // Bills summary for current cycle (with per-cycle overrides)
+  const startDay = parseInt(cycle.startDate.split('-')[2]);
+  const endDay = parseInt(cycle.endDate.split('-')[2]);
+  const cycleBills = store.billTemplates
+    .filter((b) => b.enabled && b.dueDay >= startDay && b.dueDay <= endDay && (!b.createdInCycle || b.createdInCycle <= cycle.startDate) && (!b.oneTimeCycle || b.oneTimeCycle === cycle.startDate))
+    .map((b) => {
+      const override = store.getBillOverride(b.id, cycle.startDate);
+      if (!override) return b;
+      return { ...b, amount: override.amount ?? b.amount };
+    });
+  const billPayments = store.getBillPaymentsForCycle(cycle.startDate);
+  const billsPaid = cycleBills.filter((b) => billPayments.some((p) => p.billId === b.id)).length;
+  const billsTotal = cycleBills.length;
+  const billsTotalDue = cycleBills.reduce((sum, b) => sum + b.amount, 0);
+  const billsTotalPaid = cycleBills.filter((b) => billPayments.some((p) => p.billId === b.id)).reduce((sum, b) => sum + b.amount, 0);
 
   return (
     <div className="flex flex-col gap-4 pb-28 px-4 pt-6">
       <RecurringPrompt />
 
-      {/* Cycle label */}
-      <div className="text-center">
-        <span className="text-xs font-medium uppercase tracking-widest text-slate-400">
-          Current Cycle
-        </span>
-        <h2 className="text-lg font-semibold text-white mt-0.5">{cycle.label}</h2>
+      {/* Cycle switcher */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => setCycle(getPrevCycle(cycle))}
+          className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-slate-400 active:bg-slate-800 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <div className="text-center">
+          <span className="text-xs font-medium uppercase tracking-widest text-slate-400">
+            {isCurrentCycle ? 'Current Cycle' : 'Viewing'}
+          </span>
+          <button
+            onClick={() => setCycle(getCurrentCycle())}
+            className={`block mx-auto text-lg font-semibold mt-0.5 transition-colors ${isCurrentCycle ? 'text-white' : 'text-emerald-400'}`}
+          >
+            {cycle.label}
+          </button>
+        </div>
+        <button
+          onClick={() => setCycle(getNextCycle(cycle))}
+          className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-slate-400 active:bg-slate-800 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
 
       {/* Balance card */}
       <div
         className={`rounded-2xl p-6 text-center transition-colors ${
           isOverBudget
-            ? 'bg-red-500/20 ring-1 ring-red-500/40'
-            : 'bg-gradient-to-br from-emerald-600/30 to-emerald-800/20 ring-1 ring-emerald-500/20'
+            ? 'bg-slate-900 ring-1 ring-red-500/40'
+            : 'bg-slate-900'
         }`}
       >
         <p className="text-sm text-slate-300 mb-1">Remaining Balance</p>
@@ -71,30 +109,45 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
 
       {/* Income / Expense summary */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-slate-800/60 rounded-xl p-4">
+        <div className="bg-slate-900 rounded-2xl p-4">
           <p className="text-xs text-slate-400 mb-1">Income</p>
           <p className="text-xl font-bold text-emerald-400">+{formatMoney(income, sym)}</p>
         </div>
-        <div className="bg-slate-800/60 rounded-xl p-4">
+        <div className="bg-slate-900 rounded-2xl p-4">
           <p className="text-xs text-slate-400 mb-1">Expenses</p>
           <p className="text-xl font-bold text-red-400">−{formatMoney(expenses, sym)}</p>
         </div>
       </div>
 
-      {/* Previous Cycle */}
-      <div className="bg-slate-800/60 rounded-xl p-4 flex items-center justify-between">
-        <div>
-          <p className="text-xs text-slate-400 mb-0.5">Previous Cycle</p>
-          <p className="text-xs text-slate-500">{prevCycle.label}</p>
-        </div>
-        <p className={`text-lg font-bold ${prevBalance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-          {formatMoney(prevBalance, sym)}
-        </p>
-      </div>
+      {/* Bills summary */}
+      {billsTotal > 0 && (
+        <button
+          onClick={() => onNavigate('bills')}
+          className="bg-slate-900 rounded-2xl p-4 text-left active:bg-slate-800 transition-colors"
+        >
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="flex items-center gap-2">
+              <ClipboardCheckIcon size={16} className="text-slate-400" />
+              <p className="text-xs text-slate-400 uppercase tracking-wider">Bills</p>
+            </div>
+            <p className="text-xs text-slate-500">{billsPaid} of {billsTotal} paid</p>
+          </div>
+          <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden mb-2.5">
+            <div
+              className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+              style={{ width: `${(billsPaid / billsTotal) * 100}%` }}
+            />
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-emerald-400 font-semibold">{formatMoney(billsTotalPaid, sym)}</span>
+            <span className="text-slate-400">{formatMoney(billsTotalDue - billsTotalPaid, sym)} remaining</span>
+          </div>
+        </button>
+      )}
 
       {/* Category breakdown */}
       {Object.keys(byCategory).length > 0 && (
-        <div className="bg-slate-800/60 rounded-xl p-4">
+        <div className="bg-slate-900 rounded-2xl p-4">
           <p className="text-xs text-slate-400 mb-3 uppercase tracking-wider">Expenses by Category</p>
           <div className="space-y-2">
             {Object.entries(byCategory)
@@ -130,6 +183,61 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         </div>
       )}
 
+      {/* Savings summary */}
+      {store.savingsGoals.length > 0 && (() => {
+        const totalSaved = store.savingsGoals.reduce((sum, g) => sum + g.savedAmount, 0);
+        const totalTarget = store.savingsGoals.reduce((sum, g) => sum + g.targetAmount, 0);
+        const topGoal = store.savingsGoals.reduce((best, g) => {
+          const pct = g.targetAmount > 0 ? g.savedAmount / g.targetAmount : 0;
+          const bestPct = best.targetAmount > 0 ? best.savedAmount / best.targetAmount : 0;
+          return pct > bestPct ? g : best;
+        });
+        return (
+          <button
+            onClick={() => onNavigate('savings')}
+            className="bg-slate-900 rounded-2xl p-4 text-left active:bg-slate-800 transition-colors"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <SavingsIconComponent name={topGoal.icon} size={16} className="text-slate-400" />
+                <p className="text-xs text-slate-400 uppercase tracking-wider">Savings</p>
+              </div>
+              <p className="text-xs text-slate-500">{store.savingsGoals.length} goal{store.savingsGoals.length !== 1 ? 's' : ''}</p>
+            </div>
+            <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden mb-2.5">
+              <div
+                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                style={{ width: `${totalTarget > 0 ? Math.min((totalSaved / totalTarget) * 100, 100) : 0}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-emerald-400 font-semibold">{formatMoney(totalSaved, sym)}</span>
+              <span className="text-slate-400">of {formatMoney(totalTarget, sym)}</span>
+            </div>
+          </button>
+        );
+      })()}
+
+      {/* Summary & Analytics links */}
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          onClick={() => onNavigate('summary')}
+          className="bg-slate-900 rounded-2xl p-4 flex items-center gap-2 active:bg-slate-800 transition-colors"
+        >
+          <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+          </svg>
+          <p className="text-sm text-slate-300">Summary</p>
+        </button>
+        <button
+          onClick={() => onNavigate('analytics')}
+          className="bg-slate-900 rounded-2xl p-4 flex items-center gap-2 active:bg-slate-800 transition-colors"
+        >
+          <ChartPieIcon size={16} className="text-slate-400 shrink-0" />
+          <p className="text-sm text-slate-300">Analytics</p>
+        </button>
+      </div>
+
       {/* Recent transactions */}
       {recentTxns.length > 0 && (
         <div>
@@ -142,11 +250,11 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
               View all
             </button>
           </div>
-          <div className="space-y-2">
+          <div className="bg-slate-900 rounded-2xl overflow-hidden divide-y divide-slate-800">
             {recentTxns.map((t) => (
               <div
                 key={t.id}
-                className="bg-slate-800/40 rounded-xl px-4 py-3 flex items-center justify-between"
+                className="px-4 py-3 flex items-center justify-between active:bg-slate-800"
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
@@ -184,7 +292,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
       {/* Empty state */}
       {recentTxns.length === 0 && income === 0 && (
         <div className="text-center py-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800/60 mb-3">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-900 mb-3">
             <EmptyWalletIcon size={32} className="text-slate-500" />
           </div>
           <p className="text-slate-400 text-sm">No transactions yet</p>

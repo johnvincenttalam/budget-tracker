@@ -58,7 +58,7 @@ export function LockScreen({ pinHash, onUnlock }: LockScreenProps) {
                   ? error
                     ? 'bg-red-500'
                     : 'bg-emerald-400'
-                  : 'bg-slate-700'
+                  : 'bg-slate-800'
               }`}
             />
           ))}
@@ -89,7 +89,7 @@ export function LockScreen({ pinHash, onUnlock }: LockScreenProps) {
               <button
                 key={key}
                 onClick={() => handleDigit(key)}
-                className="w-18 h-18 rounded-full flex items-center justify-center text-2xl font-medium text-white bg-slate-800/60 active:bg-slate-700 transition-colors"
+                className="w-18 h-18 rounded-full flex items-center justify-center text-2xl font-medium text-white bg-slate-900 active:bg-slate-800 transition-colors"
               >
                 {key}
               </button>
