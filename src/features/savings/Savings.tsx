@@ -90,7 +90,6 @@ export function Savings({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
 
   // Savings rate for current cycle
   const income = store.getTotalIncome(cycle);
-  const expenses = store.getTotalExpenses(cycle);
   const balance = store.getBalance(cycle);
   const savingsRate = income > 0 ? Math.round((balance / income) * 100) : 0;
 

@@ -376,7 +376,7 @@ const CATEGORY_ICON_MAP: Record<string, (props: IconProps) => React.JSX.Element>
   Travel: TravelIcon,
 };
 
-export function CategoryIcon({ name, size = 18, className }: { name: string; size?: number; className?: string }) {
+export function CategoryIcon({ name, size = 18, className, style }: { name: string; size?: number; className?: string; style?: React.CSSProperties }) {
   const Icon = CATEGORY_ICON_MAP[name] ?? OtherIcon;
-  return <Icon size={size} className={className} />;
+  return <Icon size={size} className={className} style={style} />;
 }

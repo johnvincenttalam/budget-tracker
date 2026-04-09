@@ -5,7 +5,7 @@ import { getCategoryIconName } from '../../shared/utils/categories';
 import type { Tag, Screen } from '../../shared/types';
 import { CategoryIcon } from '../../shared/components/Icons';
 
-export function RecurringManage({ onNavigate }: { onNavigate: (s: Screen) => void }) {
+export function RecurringManage({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => void }) {
   const store = useBudgetStore();
   const sym = store.currencySymbol;
   const templates = store.recurringTemplates;
