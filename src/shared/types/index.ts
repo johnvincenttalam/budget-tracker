@@ -85,6 +85,7 @@ export type SavingsGoal = {
   savedAmount: number;
   icon: string;
   color: string;
+  deadline?: string; // ISO date YYYY-MM-DD
   createdAt: string;
 };
 

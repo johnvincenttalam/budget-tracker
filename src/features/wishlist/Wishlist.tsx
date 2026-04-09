@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '../../shared/components/ToastProvider';
+import { BottomSheet } from '../../shared/components/BottomSheet';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import { getCurrentCycle } from '../../shared/utils/cycle';
 import { formatMoney } from '../../shared/utils/format';
@@ -32,6 +33,7 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
   const [link, setLink] = useState('');
   const [sortBy, setSortBy] = useState<'priority' | 'price' | 'date'>('priority');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [confirmMove, setConfirmMove] = useState<string | null>(null);
   const [showPurchased, setShowPurchased] = useState(false);
 
   const unpurchased = items.filter((i) => !i.purchased);
@@ -114,13 +116,28 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
     }
   }
 
+  function handleMoveToSavings(id: string) {
+    if (confirmMove === id) {
+      const item = items.find((i) => i.id === id);
+      if (!item) return;
+      store.addSavingsGoal({
+        name: item.name,
+        targetAmount: item.price,
+        savedAmount: 0,
+        icon: 'Target',
+        color: 'emerald',
+      });
+      store.deleteWishlistItem(id);
+      setConfirmMove(null);
+      toast(`${item.name} moved to savings`);
+    } else {
+      setConfirmMove(id);
+      setTimeout(() => setConfirmMove((prev) => prev === id ? null : prev), 3000);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4 pb-28 px-4 pt-4">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-base font-semibold text-white">Wishlist</h2>
-      </div>
-
       {/* Summary */}
       {unpurchased.length > 0 && (
         <div className="bg-slate-900 rounded-2xl p-4">
@@ -164,6 +181,8 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
           {sorted.map((item) => {
             const ps = getPriorityStyle(item.priority);
             const canAfford = balance >= item.price;
+            const daysWaiting = Math.floor((Date.now() - new Date(item.createdAt).getTime()) / 86400000);
+            const waitLabel = daysWaiting === 0 ? 'Today' : daysWaiting === 1 ? '1 day' : `${daysWaiting} days`;
             return (
               <div key={item.id} className="px-4 py-3">
                 <div className="flex items-center gap-3">
@@ -183,7 +202,11 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
                       </span>
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
-                      {item.note && <p className="text-xs text-slate-500 truncate">{item.note}</p>}
+                      <p className={`text-[10px] ${daysWaiting >= 7 ? 'text-amber-400' : 'text-slate-600'}`}>
+                        {daysWaiting >= 7 && '⏳ '}
+                        Waiting {waitLabel}
+                      </p>
+                      {item.note && <p className="text-xs text-slate-500 truncate">· {item.note}</p>}
                     </div>
                   </div>
 
@@ -205,6 +228,18 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
                     </button>
                   </div>
                 </div>
+
+                {/* Save for this button */}
+                <button
+                  onClick={() => handleMoveToSavings(item.id)}
+                  className={`w-full mt-2 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${
+                    confirmMove === item.id
+                      ? 'border-emerald-500 bg-emerald-500 text-white'
+                      : 'border-emerald-500/40 text-emerald-400 active:bg-emerald-500/10'
+                  }`}
+                >
+                  {confirmMove === item.id ? 'Tap again to confirm' : 'Save for this →'}
+                </button>
               </div>
             );
           })}
@@ -267,18 +302,23 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
         </div>
       )}
 
-      {/* Add/Edit form */}
-      {showForm ? (
-        <div className="bg-slate-900 rounded-2xl p-4 space-y-3 animate-slide-up">
-          <p className="text-xs text-slate-400 uppercase tracking-wider">{editingId ? 'Edit Item' : 'New Item'}</p>
+      {/* Add Item button */}
+      <button
+        onClick={() => { resetForm(); setShowForm(true); }}
+        className="w-full py-3 rounded-2xl text-sm font-medium bg-slate-900 text-emerald-400 active:bg-slate-800 transition-colors"
+      >
+        + Add Item
+      </button>
 
+      {/* Item form bottom sheet */}
+      <BottomSheet open={showForm} onClose={resetForm} title={editingId ? 'Edit Item' : 'New Item'}>
+        <div className="space-y-3">
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Item name"
             className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
-            autoFocus
           />
 
           <input
@@ -324,30 +364,15 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
             className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
           />
 
-          <div className="flex gap-2">
-            <button
-              onClick={handleSave}
-              disabled={!name.trim() || !price || parseFloat(price) <= 0}
-              className="flex-1 py-3 rounded-xl text-sm font-bold bg-emerald-500 text-white disabled:opacity-30 transition-all active:scale-[0.98]"
-            >
-              {editingId ? 'Save' : 'Add Item'}
-            </button>
-            <button
-              onClick={resetForm}
-              className="px-4 py-3 rounded-xl text-sm bg-slate-800 text-slate-400"
-            >
-              Cancel
-            </button>
-          </div>
+          <button
+            onClick={handleSave}
+            disabled={!name.trim() || !price || parseFloat(price) <= 0}
+            className="w-full py-3 rounded-xl text-sm font-bold bg-emerald-500 text-white disabled:opacity-30 transition-all active:scale-[0.98]"
+          >
+            {editingId ? 'Save' : 'Add Item'}
+          </button>
         </div>
-      ) : (
-        <button
-          onClick={() => { resetForm(); setShowForm(true); }}
-          className="w-full py-3 rounded-2xl text-sm font-medium bg-slate-900 text-emerald-400 active:bg-slate-800 transition-colors"
-        >
-          + Add Item
-        </button>
-      )}
+      </BottomSheet>
     </div>
   );
 }

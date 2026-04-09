@@ -6,6 +6,7 @@ import { formatMoney } from '../../shared/utils/format';
 import { getBillStatus, getDueDateLabel, type BillStatus } from '../../shared/utils/bills';
 import { getCategoryIconName } from '../../shared/utils/categories';
 import { CategoryIcon } from '../../shared/components/Icons';
+import { BottomSheet } from '../../shared/components/BottomSheet';
 import type { Screen, CustomCategory } from '../../shared/types';
 
 export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => void }) {
@@ -70,7 +71,7 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
     const bill = bills.find((b) => b.id === billId);
     if (!bill) return;
     setEditingId(billId);
-    setCycleOnly(!!bill.oneTimeCycle);
+    setCycleOnly(bill.oneTimeCycle === cycle.startDate);
     setName(bill.name);
     setAmount(String(bill.amount));
     setCategory(bill.category);
@@ -189,15 +190,12 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <div className="text-center">
-          <h2 className="text-base font-semibold text-white">Bills</h2>
-          <button
-            onClick={() => setCycle(getCurrentCycle())}
-            className={`text-sm mt-0.5 transition-colors ${isCurrentCycle ? 'text-slate-400' : 'text-emerald-400 underline underline-offset-2'}`}
-          >
-            {cycle.label}{!isCurrentCycle && ' (tap for today)'}
-          </button>
-        </div>
+        <button
+          onClick={() => setCycle(getCurrentCycle())}
+          className={`text-sm transition-colors ${isCurrentCycle ? 'text-slate-400' : 'text-emerald-400 underline underline-offset-2'}`}
+        >
+          {cycle.label}{!isCurrentCycle && ' (tap for today)'}
+        </button>
         <button
           onClick={() => setCycle(getNextCycle(cycle))}
           className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-slate-400 active:bg-slate-800 transition-colors"
@@ -340,18 +338,23 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
         </div>
       )}
 
-      {/* Add form */}
-      {showForm ? (
-        <div className="bg-slate-900 rounded-2xl p-4 space-y-3 animate-slide-up">
-          <p className="text-xs text-slate-400 uppercase tracking-wider">{editingId ? 'Edit Bill' : 'New Bill'}</p>
+      {/* Add Bill button */}
+      <button
+        onClick={() => { resetForm(); setShowForm(true); }}
+        className="w-full py-3 rounded-2xl text-sm font-medium bg-slate-900 text-emerald-400 active:bg-slate-800 transition-colors"
+      >
+        + Add Bill
+      </button>
 
+      {/* Bottom sheet form */}
+      <BottomSheet open={showForm} onClose={resetForm} title={editingId ? 'Edit Bill' : 'New Bill'}>
+        <div className="space-y-3">
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Bill name (e.g. Electricity)"
             className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
-            autoFocus
           />
 
           <div className="grid grid-cols-2 gap-3">
@@ -439,30 +442,15 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
             </button>
           </div>
 
-          <div className="flex gap-2">
-            <button
-              onClick={handleSave}
-              disabled={!name.trim() || !amount || parseFloat(amount) <= 0 || !dueDay || parseInt(dueDay) < 1 || parseInt(dueDay) > 31}
-              className="flex-1 py-3 rounded-xl text-sm font-bold bg-emerald-500 text-white disabled:opacity-30 transition-all active:scale-[0.98]"
-            >
-              {editingId ? 'Save' : 'Add Bill'}
-            </button>
-            <button
-              onClick={resetForm}
-              className="px-4 py-3 rounded-xl text-sm bg-slate-800 text-slate-400"
-            >
-              Cancel
-            </button>
-          </div>
+          <button
+            onClick={handleSave}
+            disabled={!name.trim() || !amount || parseFloat(amount) <= 0 || !dueDay || parseInt(dueDay) < 1 || parseInt(dueDay) > 31}
+            className="w-full py-3 rounded-xl text-sm font-bold bg-emerald-500 text-white disabled:opacity-30 transition-all active:scale-[0.98]"
+          >
+            {editingId ? 'Save' : 'Add Bill'}
+          </button>
         </div>
-      ) : (
-        <button
-          onClick={() => { resetForm(); setShowForm(true); }}
-          className="w-full py-3 rounded-2xl text-sm font-medium bg-slate-900 text-emerald-400 active:bg-slate-800 transition-colors"
-        >
-          + Add Bill
-        </button>
-      )}
+      </BottomSheet>
     </div>
   );
 }

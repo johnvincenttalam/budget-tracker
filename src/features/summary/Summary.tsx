@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import { getCurrentCycle, getPreviousCycle } from '../../shared/utils/cycle';
+
+const CATEGORY_COLORS = ['#34D399', '#60A5FA', '#F472B6', '#FBBF24', '#A78BFA', '#FB923C', '#2DD4BF', '#F87171', '#818CF8', '#4ADE80'];
 import { formatMoney } from '../../shared/utils/format';
 import { getCategoryIconName } from '../../shared/utils/categories';
 import { CategoryIcon, SearchIcon } from '../../shared/components/Icons';
@@ -132,11 +134,6 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
 
   return (
     <div className="flex flex-col gap-4 pb-28 px-4 pt-4">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-base font-semibold text-white">Summary</h2>
-      </div>
-
       {/* Tabs */}
       <div className="flex bg-slate-900 rounded-xl p-1">
         <button
@@ -187,13 +184,14 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
           <div className="space-y-2">
             {Object.entries(byCategory)
               .sort(([, a], [, b]) => b - a)
-              .map(([cat, total]) => {
+              .map(([cat, total], i) => {
                 const pct = expenses > 0 ? (total / expenses) * 100 : 0;
+                const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length];
                 return (
                   <div key={cat}>
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-sm text-slate-300 flex items-center gap-1.5">
-                        <CategoryIcon name={getCategoryIconName(cat, customCategories)} size={16} className="text-slate-400" />
+                        <CategoryIcon name={getCategoryIconName(cat, customCategories)} size={16} style={{ color }} />
                         {cat}
                       </span>
                       <span className="text-sm font-semibold text-slate-200">
@@ -205,8 +203,8 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
                     </div>
                     <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                        style={{ width: `${pct}%` }}
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${pct}%`, backgroundColor: color }}
                       />
                     </div>
                   </div>

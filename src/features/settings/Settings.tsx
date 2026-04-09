@@ -125,11 +125,6 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
 
   return (
     <div className="flex flex-col gap-6 px-4 pt-4 pb-28">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-base font-semibold text-white">Settings</h2>
-      </div>
-
       {/* Appearance */}
       <div>
         <p className="text-xs text-slate-400 uppercase tracking-wider mb-3">Appearance</p>

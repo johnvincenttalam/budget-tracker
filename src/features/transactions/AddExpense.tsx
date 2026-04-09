@@ -124,22 +124,22 @@ export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavig
         </button>
       </div>
 
-      {/* Note & Date */}
-      <div className="flex gap-2 mb-3">
-        <input
-          type="text"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          placeholder="Note (optional)"
-          className="flex-1 bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
-        />
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="bg-slate-900 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 [color-scheme:dark]"
-        />
-      </div>
+      {/* Note */}
+      <input
+        type="text"
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder="Note (optional)"
+        className="w-full bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-2"
+      />
+
+      {/* Date */}
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+        className="w-full bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 [color-scheme:dark] mb-3"
+      />
 
       {/* Numpad */}
       <div className="grid grid-cols-3 gap-2 flex-1 max-h-[280px]">

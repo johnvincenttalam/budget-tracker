@@ -54,11 +54,6 @@ export function Analytics({ onNavigate: _onNavigate }: { onNavigate: (s: Screen)
 
   return (
     <div className="flex flex-col gap-4 pb-28 px-4 pt-4">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-base font-semibold text-white">Analytics</h2>
-      </div>
-
       {/* Cycle toggle */}
       <div className="flex bg-slate-900 rounded-2xl p-1">
         <button

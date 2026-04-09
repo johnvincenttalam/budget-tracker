@@ -3,7 +3,7 @@ import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import { formatMoney } from '../../shared/utils/format';
 import { getCategoryIconName } from '../../shared/utils/categories';
 import type { Tag, Screen } from '../../shared/types';
-import { ArrowLeftIcon, CategoryIcon } from '../../shared/components/Icons';
+import { CategoryIcon } from '../../shared/components/Icons';
 
 export function RecurringManage({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const store = useBudgetStore();
@@ -43,18 +43,6 @@ export function RecurringManage({ onNavigate }: { onNavigate: (s: Screen) => voi
 
   return (
     <div className="flex flex-col gap-5 px-4 pt-4 pb-8">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950 flex items-center justify-between pb-3 -mx-4 px-4 pt-0">
-        <button
-          onClick={() => onNavigate('settings')}
-          className="text-slate-400 p-2 -ml-2 flex items-center gap-1"
-        >
-          <ArrowLeftIcon size={18} />
-          <span className="text-sm">Back</span>
-        </button>
-        <h2 className="text-base font-semibold text-white">Recurring Expenses</h2>
-        <div className="w-14" />
-      </div>
 
       {/* Add form */}
       <div className="bg-slate-900 rounded-xl p-4 space-y-3">

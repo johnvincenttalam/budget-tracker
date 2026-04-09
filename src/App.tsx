@@ -16,6 +16,7 @@ import { Bills } from './features/bills/Bills';
 import { Savings } from './features/savings/Savings';
 import { Wishlist } from './features/wishlist/Wishlist';
 import { WalletIcon, ReceiptIcon, ClipboardCheckIcon } from './shared/components/Icons';
+import { SideMenu } from './shared/components/SideMenu';
 
 export default function App() {
   const pinHash = useBudgetStore((s) => s.pinHash);
@@ -24,6 +25,7 @@ export default function App() {
   const storedScreen = useBudgetStore((s) => s.currentScreen);
   const setCurrentScreen = useBudgetStore((s) => s.setCurrentScreen);
   const [fabOpen, setFabOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [editTransactionId, setEditTransactionId] = useState<string | null>(null);
   const [previousScreen, setPreviousScreen] = useState<Screen>('dashboard');
   // Edit screens need a transaction ID; fall back to dashboard on reload
@@ -44,8 +46,21 @@ export default function App() {
     );
   }, [theme]);
 
+  const screenTitles: Partial<Record<Screen, string>> = {
+    dashboard: 'Home',
+    bills: 'Bills',
+    savings: 'Savings',
+    wishlist: 'Wishlist',
+    summary: 'Summary',
+    analytics: 'Analytics',
+    settings: 'Settings',
+    recurring: 'Recurring',
+  };
+  const showTopBar = !isLocked && !!screenTitles[screen];
+
   function navigate(s: Screen, txId?: string) {
     setFabOpen(false);
+    setMenuOpen(false);
     // Track where we came from (only for main screens, not form screens)
     const formScreens: Screen[] = ['add-expense', 'add-income', 'edit-expense', 'edit-income'];
     if (!formScreens.includes(screen)) {
@@ -60,6 +75,32 @@ export default function App() {
       {/* Lock screen */}
       {isLocked && pinHash && (
         <LockScreen pinHash={pinHash} onUnlock={() => setIsLocked(false)} />
+      )}
+
+      {/* Side menu */}
+      <SideMenu
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        onNavigate={navigate}
+        currentScreen={screen}
+      />
+
+      {/* Top bar */}
+      {showTopBar && (
+        <div className="sticky top-0 z-30 bg-slate-950/95 backdrop-blur-lg border-b border-slate-800/50">
+          <div className="max-w-2xl mx-auto flex items-center justify-between px-4 py-3">
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 active:bg-slate-800 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+            <h1 className="text-sm font-semibold text-white">{screenTitles[screen]}</h1>
+            <div className="w-9" />
+          </div>
+        </div>
       )}
 
       {/* Screen content */}

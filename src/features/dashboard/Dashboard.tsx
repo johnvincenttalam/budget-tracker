@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import { ClipboardCheckIcon } from '../../shared/components/Icons';
 import { getCurrentCycle, getNextCycle, getPrevCycle } from '../../shared/utils/cycle';
+
+const CATEGORY_COLORS = ['#34D399', '#60A5FA', '#F472B6', '#FBBF24', '#A78BFA', '#FB923C', '#2DD4BF', '#F87171', '#818CF8', '#4ADE80'];
 import { formatMoney } from '../../shared/utils/format';
 import { getCategoryIconName } from '../../shared/utils/categories';
-import { CategoryIcon, EmptyWalletIcon, ChartPieIcon, SavingsIconComponent } from '../../shared/components/Icons';
+import { CategoryIcon, EmptyWalletIcon, SavingsIconComponent } from '../../shared/components/Icons';
 import { BudgetProgress } from '../../shared/components/BudgetProgress';
 import { RecurringPrompt } from '../recurring/RecurringPrompt';
 import type { Screen } from '../../shared/types';
@@ -152,14 +154,15 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
           <div className="space-y-2">
             {Object.entries(byCategory)
               .sort(([, a], [, b]) => b - a)
-              .map(([cat, total]) => {
+              .map(([cat, total], i) => {
                 const budget = categoryBudgets.find((b) => b.category === cat);
                 const pct = expenses > 0 ? (total / expenses) * 100 : 0;
+                const color = CATEGORY_COLORS[i % CATEGORY_COLORS.length];
                 return (
                   <div key={cat}>
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-sm text-slate-300 flex items-center gap-1.5">
-                        <CategoryIcon name={getCategoryIconName(cat, customCategories)} size={16} className="text-slate-400" />
+                        <CategoryIcon name={getCategoryIconName(cat, customCategories)} size={16} style={{ color }} />
                         {cat}
                       </span>
                       <span className="text-sm font-semibold text-slate-200">
@@ -171,8 +174,8 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
                     ) : (
                       <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                          style={{ width: `${pct}%` }}
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${pct}%`, backgroundColor: color }}
                         />
                       </div>
                     )}
@@ -218,35 +221,50 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         );
       })()}
 
-      {/* Summary, Analytics & Settings links */}
-      <div className="grid grid-cols-3 gap-3">
-        <button
-          onClick={() => onNavigate('summary')}
-          className="bg-slate-900 rounded-2xl p-3 flex flex-col items-center gap-1 active:bg-slate-800 transition-colors"
-        >
-          <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-          </svg>
-          <p className="text-xs text-slate-300">Summary</p>
-        </button>
-        <button
-          onClick={() => onNavigate('analytics')}
-          className="bg-slate-900 rounded-2xl p-3 flex flex-col items-center gap-1 active:bg-slate-800 transition-colors"
-        >
-          <ChartPieIcon size={20} className="text-slate-400" />
-          <p className="text-xs text-slate-300">Analytics</p>
-        </button>
-        <button
-          onClick={() => onNavigate('settings')}
-          className="bg-slate-900 rounded-2xl p-3 flex flex-col items-center gap-1 active:bg-slate-800 transition-colors"
-        >
-          <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <p className="text-xs text-slate-300">Settings</p>
-        </button>
-      </div>
+      {/* Wishlist summary */}
+      {store.wishlistItems.filter((i) => !i.purchased).length > 0 && (() => {
+        const unpurchased = store.wishlistItems.filter((i) => !i.purchased);
+        // Sort by affordability (closest to affordable first), then by priority
+        const priorityOrder: Record<string, number> = { need: 0, want: 1, someday: 2 };
+        const topItems = [...unpurchased]
+          .sort((a, b) => {
+            const aDiff = Math.max(0, a.price - balance);
+            const bDiff = Math.max(0, b.price - balance);
+            if (aDiff !== bDiff) return aDiff - bDiff;
+            return (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1);
+          })
+          .slice(0, 3);
+        return (
+          <button
+            onClick={() => onNavigate('wishlist')}
+            className="bg-slate-900 rounded-2xl p-4 text-left active:bg-slate-800 transition-colors"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+                <p className="text-xs text-slate-400 uppercase tracking-wider">Wishlist</p>
+              </div>
+              <p className="text-xs text-slate-500">{unpurchased.length} item{unpurchased.length !== 1 ? 's' : ''}</p>
+            </div>
+            <div className="space-y-1.5">
+              {topItems.map((item) => {
+                const canAfford = balance >= item.price;
+                return (
+                  <div key={item.id} className="flex items-center justify-between">
+                    <span className="text-sm text-slate-300 truncate flex-1 mr-2">{item.name}</span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-sm text-white font-medium">{formatMoney(item.price, sym)}</span>
+                      <span className={`w-1.5 h-1.5 rounded-full ${canAfford ? 'bg-emerald-500' : 'bg-slate-600'}`} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </button>
+        );
+      })()}
 
       {/* Recent transactions */}
       {recentTxns.length > 0 && (
