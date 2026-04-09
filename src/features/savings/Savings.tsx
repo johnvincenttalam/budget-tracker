@@ -207,7 +207,7 @@ export function Savings({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
                     setContributeNote('');
                   }}
                   className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${
-                    isContributing ? 'bg-slate-700 text-slate-300' : `${gc.bgLight} ${gc.text}`
+                    isContributing ? 'bg-slate-700 text-slate-300' : `${gc.bg} text-white`
                   }`}
                 >
                   {isContributing ? 'Cancel' : '+ Add Money'}
