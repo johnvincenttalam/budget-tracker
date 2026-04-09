@@ -14,7 +14,8 @@ import { LockScreen } from './features/security/LockScreen';
 import { InstallPrompt } from './features/pwa/InstallPrompt';
 import { Bills } from './features/bills/Bills';
 import { Savings } from './features/savings/Savings';
-import { WalletIcon, ReceiptIcon, SettingsIcon, ClipboardCheckIcon } from './shared/components/Icons';
+import { Wishlist } from './features/wishlist/Wishlist';
+import { WalletIcon, ReceiptIcon, ClipboardCheckIcon } from './shared/components/Icons';
 
 export default function App() {
   const pinHash = useBudgetStore((s) => s.pinHash);
@@ -74,12 +75,13 @@ export default function App() {
         {screen === 'recurring' && <RecurringManage onNavigate={navigate} />}
         {screen === 'bills' && <Bills onNavigate={navigate} />}
         {screen === 'savings' && <Savings onNavigate={navigate} />}
+        {screen === 'wishlist' && <Wishlist onNavigate={navigate} />}
       </div>
 
       <InstallPrompt />
 
       {/* Bottom navigation - shown on main tab screens, hidden when locked */}
-      {!isLocked && (['dashboard', 'bills', 'summary', 'savings', 'analytics', 'settings'] as const).includes(screen as any) && (
+      {!isLocked && (['dashboard', 'bills', 'summary', 'savings', 'wishlist', 'analytics', 'settings'] as const).includes(screen as any) && (
         <>
           {/* FAB overlay */}
           {fabOpen && (
@@ -159,13 +161,15 @@ export default function App() {
                 <span className="text-[10px] font-medium">Savings</span>
               </button>
 
-              {/* Settings */}
+              {/* Wishlist */}
               <button
-                onClick={() => navigate('settings')}
-                className={`flex flex-col items-center gap-0.5 ${screen === 'settings' ? 'text-emerald-400' : 'text-slate-400'}`}
+                onClick={() => navigate('wishlist')}
+                className={`flex flex-col items-center gap-0.5 ${screen === 'wishlist' ? 'text-emerald-400' : 'text-slate-400'}`}
               >
-                <SettingsIcon size={24} />
-                <span className="text-[10px] font-medium">Settings</span>
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                </svg>
+                <span className="text-[10px] font-medium">Wishlist</span>
               </button>
             </div>
           </div>

@@ -97,6 +97,20 @@ export type SavingsContribution = {
   note?: string;
 };
 
+export type WishlistPriority = 'need' | 'want' | 'someday';
+
+export type WishlistItem = {
+  id: string;
+  name: string;
+  price: number;
+  priority: WishlistPriority;
+  note?: string;
+  link?: string;
+  purchased: boolean;
+  purchasedAt?: string;
+  createdAt: string;
+};
+
 export type Screen =
   | 'dashboard'
   | 'add-expense'
@@ -108,4 +122,5 @@ export type Screen =
   | 'edit-expense'
   | 'edit-income'
   | 'bills'
-  | 'savings';
+  | 'savings'
+  | 'wishlist';

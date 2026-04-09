@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Transaction, Cycle, CurrencySymbol, CategoryBudget, RecurringTemplate, CustomCategory, BillTemplate, BillPayment, BillOverride, SavingsGoal, SavingsContribution, Screen } from '../types';
+import type { Transaction, Cycle, CurrencySymbol, CategoryBudget, RecurringTemplate, CustomCategory, BillTemplate, BillPayment, BillOverride, SavingsGoal, SavingsContribution, WishlistItem, Screen } from '../types';
 import { DEFAULT_CATEGORIES } from '../types';
 import { isDateInCycle } from '../utils/cycle';
 
@@ -28,6 +28,7 @@ interface BudgetState {
   billOverrides: BillOverride[];
   savingsGoals: SavingsGoal[];
   savingsContributions: SavingsContribution[];
+  wishlistItems: WishlistItem[];
   currentScreen: Screen;
   billsCycleStart: string | null;
 
@@ -82,6 +83,12 @@ interface BudgetState {
   deleteContribution: (id: string) => void;
   getContributionsForGoal: (goalId: string) => SavingsContribution[];
 
+  // Wishlist
+  addWishlistItem: (item: Omit<WishlistItem, 'id' | 'createdAt' | 'purchased'>) => void;
+  updateWishlistItem: (id: string, updates: Partial<Omit<WishlistItem, 'id'>>) => void;
+  deleteWishlistItem: (id: string) => void;
+  toggleWishlistPurchased: (id: string) => void;
+
   // Custom categories
   addCustomCategory: (cat: CustomCategory) => void;
   removeCustomCategory: (name: string) => void;
@@ -112,6 +119,7 @@ export const useBudgetStore = create<BudgetState>()(
       billOverrides: [],
       savingsGoals: [],
       savingsContributions: [],
+      wishlistItems: [],
       currentScreen: 'dashboard' as Screen,
       billsCycleStart: null,
 
@@ -346,6 +354,29 @@ export const useBudgetStore = create<BudgetState>()(
       getContributionsForGoal: (goalId) =>
         get().savingsContributions.filter((c) => c.goalId === goalId),
 
+      // Wishlist
+      addWishlistItem: (item) =>
+        set((state) => ({
+          wishlistItems: [...state.wishlistItems, { ...item, id: genId(), createdAt: new Date().toISOString(), purchased: false }],
+        })),
+
+      updateWishlistItem: (id, updates) =>
+        set((state) => ({
+          wishlistItems: state.wishlistItems.map((i) => i.id === id ? { ...i, ...updates } : i),
+        })),
+
+      deleteWishlistItem: (id) =>
+        set((state) => ({
+          wishlistItems: state.wishlistItems.filter((i) => i.id !== id),
+        })),
+
+      toggleWishlistPurchased: (id) =>
+        set((state) => ({
+          wishlistItems: state.wishlistItems.map((i) =>
+            i.id === id ? { ...i, purchased: !i.purchased, purchasedAt: !i.purchased ? new Date().toISOString() : undefined } : i
+          ),
+        })),
+
       // Custom categories
       addCustomCategory: (cat) =>
         set((state) => ({
@@ -420,6 +451,7 @@ export const useBudgetStore = create<BudgetState>()(
         billOverrides: state.billOverrides,
         savingsGoals: state.savingsGoals,
         savingsContributions: state.savingsContributions,
+        wishlistItems: state.wishlistItems,
         currentScreen: state.currentScreen,
         billsCycleStart: state.billsCycleStart,
         cycleSplitDay: state.cycleSplitDay,
