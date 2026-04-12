@@ -122,7 +122,7 @@ export default function App() {
       <InstallPrompt />
 
       {/* Bottom navigation - shown on main tab screens, hidden when locked */}
-      {!isLocked && (['dashboard', 'bills', 'summary', 'savings', 'wishlist', 'analytics', 'settings'] as const).includes(screen as any) && (
+      {!isLocked && (['dashboard', 'bills', 'summary', 'savings', 'wishlist', 'analytics', 'settings', 'recurring'] as const).includes(screen as any) && (
         <>
           {/* FAB overlay */}
           {fabOpen && (

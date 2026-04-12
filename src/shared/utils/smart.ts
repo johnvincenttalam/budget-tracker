@@ -104,6 +104,63 @@ export function getSpendingPaceStatus(
 }
 
 /**
+ * Calculate a financial health score (0-100) based on:
+ * - Savings rate (0-30 pts): % of income unspent
+ * - Bills adherence (0-25 pts): % of bills paid this cycle
+ * - Budget control (0-25 pts): not overspending vs income
+ * - Savings goals (0-20 pts): progress toward savings targets
+ */
+export function calculateHealthScore(params: {
+  income: number;
+  expenses: number;
+  billsPaid: number;
+  billsTotal: number;
+  totalSaved: number;
+  totalTarget: number;
+}): { score: number; label: string; color: string; breakdown: { name: string; pts: number; max: number }[] } {
+  const { income, expenses, billsPaid, billsTotal, totalSaved, totalTarget } = params;
+  const breakdown: { name: string; pts: number; max: number }[] = [];
+
+  // Savings rate (0-30)
+  let savingsPts = 0;
+  if (income > 0) {
+    const rate = Math.max(0, (income - expenses) / income);
+    savingsPts = Math.round(Math.min(rate * 100, 30));
+  }
+  breakdown.push({ name: 'Savings Rate', pts: savingsPts, max: 30 });
+
+  // Bills (0-25)
+  let billsPts = 25; // full marks if no bills
+  if (billsTotal > 0) {
+    billsPts = Math.round((billsPaid / billsTotal) * 25);
+  }
+  breakdown.push({ name: 'Bills Paid', pts: billsPts, max: 25 });
+
+  // Budget control (0-25)
+  let budgetPts = 25;
+  if (income > 0) {
+    const ratio = expenses / income;
+    if (ratio > 1) budgetPts = 0;
+    else if (ratio > 0.9) budgetPts = 10;
+    else if (ratio > 0.7) budgetPts = 20;
+  }
+  breakdown.push({ name: 'Budget Control', pts: budgetPts, max: 25 });
+
+  // Savings goals (0-20)
+  let goalsPts = 0;
+  if (totalTarget > 0) {
+    goalsPts = Math.round(Math.min(totalSaved / totalTarget, 1) * 20);
+  }
+  breakdown.push({ name: 'Goal Progress', pts: goalsPts, max: 20 });
+
+  const score = savingsPts + billsPts + budgetPts + goalsPts;
+  const label = score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : score >= 40 ? 'Fair' : 'Needs Work';
+  const color = score >= 80 ? '#34D399' : score >= 60 ? '#60A5FA' : score >= 40 ? '#FBBF24' : '#F87171';
+
+  return { score, label, color, breakdown };
+}
+
+/**
  * Suggest a category for a transaction based on past transactions with similar notes.
  * Returns the most common category for transactions whose note matches the input.
  */
