@@ -49,8 +49,6 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const billPayments = store.getBillPaymentsForCycle(cycle.startDate);
   const billsPaid = cycleBills.filter((b) => billPayments.some((p) => p.billId === b.id)).length;
   const billsTotal = cycleBills.length;
-  const billsTotalDue = cycleBills.reduce((sum, b) => sum + b.amount, 0);
-  const billsTotalPaid = cycleBills.filter((b) => billPayments.some((p) => p.billId === b.id)).reduce((sum, b) => sum + b.amount, 0);
 
   // Health score
   const totalSaved = store.savingsGoals.reduce((sum, g) => sum + g.savedAmount, 0);

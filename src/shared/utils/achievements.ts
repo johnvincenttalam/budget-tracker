@@ -24,7 +24,7 @@ type AchievementInput = {
 };
 
 export function getAchievements(input: AchievementInput): Achievement[] {
-  const { transactions, savingsGoals, savingsContributions, billPayments, cycle, income, expenses, billsPaid, billsTotal } = input;
+  const { transactions, savingsGoals, savingsContributions, cycle, income, expenses, billsPaid, billsTotal } = input;
 
   const balance = income - expenses;
   const totalSaved = savingsGoals.reduce((s, g) => s + g.savedAmount, 0);
