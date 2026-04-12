@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import type { Tag, Screen } from '../../shared/types';
 import { todayStr } from '../../shared/utils/cycle';
 import { getCategoryIconName } from '../../shared/utils/categories';
+import { suggestCategory } from '../../shared/utils/smart';
 import { CategoryIcon, ArrowLeftIcon, DeleteIcon, CheckCircleIcon } from '../../shared/components/Icons';
 
 export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavigate: (s: Screen) => void; returnScreen?: Screen }) {
@@ -18,6 +19,13 @@ export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavig
   const [saved, setSaved] = useState(false);
 
   const numericAmount = parseFloat(amount) || 0;
+
+  // Auto-suggest category from past transactions matching the note
+  const suggestion = useMemo(() => {
+    if (!note.trim() || note.trim().length < 2) return null;
+    const cat = suggestCategory(note, store.transactions);
+    return cat && cat !== category ? cat : null;
+  }, [note, store.transactions, category]);
 
   function handleKeypad(val: string) {
     if (val === 'del') {
@@ -132,6 +140,17 @@ export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavig
         placeholder="Note (optional)"
         className="w-full bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-2"
       />
+
+      {/* Category suggestion */}
+      {suggestion && (
+        <button
+          onClick={() => setCategory(suggestion)}
+          className="text-[11px] text-emerald-400 mb-2 -mt-1 self-start px-2 py-1 rounded-lg bg-emerald-500/10 active:bg-emerald-500/20 transition-colors flex items-center gap-1"
+        >
+          <span>✨</span>
+          Tap to use <span className="font-semibold">{suggestion}</span>
+        </button>
+      )}
 
       {/* Date */}
       <input
