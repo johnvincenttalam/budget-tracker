@@ -97,6 +97,11 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
       if (incomplete.length > 0) tips.push(`You have ${formatMoney(balance, sym)} left — consider putting some toward your savings goals.`);
     }
     if (anomalies.length > 0) tips.push(`${anomalies[0].category} spending is ${anomalies[0].pctIncrease.toFixed(0)}% higher than usual.`);
+    const overBudgetCats = Object.entries(byCategory).filter(([cat, spent]) => {
+      const budget = categoryBudgets.find((b) => b.category === cat);
+      return budget && spent > budget.limit;
+    });
+    if (overBudgetCats.length > 0) tips.unshift(`${overBudgetCats[0][0]} is over budget!`);
   }
   if (tips.length === 0) tips.push("Track your expenses daily — small habits lead to big savings!");
   const tip = tips[0];

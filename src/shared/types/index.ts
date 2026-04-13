@@ -124,4 +124,5 @@ export type Screen =
   | 'edit-income'
   | 'bills'
   | 'savings'
-  | 'wishlist';
+  | 'wishlist'
+  | 'report';

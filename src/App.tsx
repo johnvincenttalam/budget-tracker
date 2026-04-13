@@ -15,6 +15,7 @@ import { InstallPrompt } from './features/pwa/InstallPrompt';
 import { Bills } from './features/bills/Bills';
 import { Savings } from './features/savings/Savings';
 import { Wishlist } from './features/wishlist/Wishlist';
+import { MonthlyReport } from './features/report/MonthlyReport';
 import { WalletIcon, ReceiptIcon, ClipboardCheckIcon } from './shared/components/Icons';
 import { SideMenu } from './shared/components/SideMenu';
 
@@ -55,6 +56,7 @@ export default function App() {
     analytics: 'Analytics',
     settings: 'Settings',
     recurring: 'Recurring',
+    report: 'Monthly Report',
   };
   const showTopBar = !isLocked && !!screenTitles[screen];
 
@@ -117,12 +119,13 @@ export default function App() {
         {screen === 'bills' && <Bills onNavigate={navigate} />}
         {screen === 'savings' && <Savings onNavigate={navigate} />}
         {screen === 'wishlist' && <Wishlist onNavigate={navigate} />}
+        {screen === 'report' && <MonthlyReport onNavigate={navigate} />}
       </div>
 
       <InstallPrompt />
 
       {/* Bottom navigation - shown on main tab screens, hidden when locked */}
-      {!isLocked && (['dashboard', 'bills', 'summary', 'savings', 'wishlist', 'analytics', 'settings', 'recurring'] as const).includes(screen as any) && (
+      {!isLocked && (['dashboard', 'bills', 'summary', 'savings', 'wishlist', 'analytics', 'settings', 'recurring', 'report'] as const).includes(screen as any) && (
         <>
           {/* FAB overlay */}
           {fabOpen && (

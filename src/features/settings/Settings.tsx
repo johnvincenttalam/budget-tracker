@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import { getCurrentCycle, getPreviousCycle } from '../../shared/utils/cycle';
+import { formatMoney } from '../../shared/utils/format';
+import { getCategoryIconName } from '../../shared/utils/categories';
 import { transactionsToCSV, downloadCSV } from '../../shared/utils/csv';
 import { verifyPin } from '../security/pin';
 import { DEFAULT_CATEGORIES, PRESET_ICONS, type Screen, type PresetIcon } from '../../shared/types';
@@ -9,9 +11,12 @@ import { PinSetup } from '../security/PinSetup';
 
 export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const store = useBudgetStore();
+  const sym = store.currencySymbol;
   const categories = store.getAllCategories();
   const customCategories = store.customCategories;
 
+  const [editingBudget, setEditingBudget] = useState<string | null>(null);
+  const [budgetInput, setBudgetInput] = useState('');
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [newCatIcon, setNewCatIcon] = useState<PresetIcon>('Shopping');
@@ -313,6 +318,73 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
           + Add Category
         </button>
       )}
+
+      {/* === BUDGET LIMITS === */}
+      <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-1 px-1">Budget Limits (per cycle)</p>
+      <div className="bg-slate-900 rounded-2xl overflow-hidden divide-y divide-slate-800/50">
+        {categories.map((cat) => {
+          const budget = store.categoryBudgets.find((b) => b.category === cat);
+          const isEditing = editingBudget === cat;
+          return (
+            <div key={cat} className="px-4 py-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-slate-300 flex items-center gap-2">
+                  <CategoryIcon name={getCategoryIconName(cat, customCategories)} size={14} className="text-slate-400" />
+                  {cat}
+                </span>
+                {budget && !isEditing ? (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => { setEditingBudget(cat); setBudgetInput(String(budget.limit)); }}
+                      className="text-xs text-emerald-400 bg-slate-800 px-2 py-1 rounded-lg"
+                    >
+                      {formatMoney(budget.limit, sym)}
+                    </button>
+                    <button onClick={() => store.removeCategoryBudget(cat)} className="text-slate-600 text-xs">×</button>
+                  </div>
+                ) : !isEditing ? (
+                  <button
+                    onClick={() => { setEditingBudget(cat); setBudgetInput(''); }}
+                    className="text-[10px] text-slate-500 bg-slate-800 px-2 py-1 rounded-lg"
+                  >
+                    Set limit
+                  </button>
+                ) : null}
+              </div>
+              {isEditing && (
+                <div className="flex gap-2 mt-2">
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={budgetInput}
+                    onChange={(e) => setBudgetInput(e.target.value)}
+                    placeholder="Amount"
+                    className="flex-1 bg-slate-800 rounded-lg px-3 py-2 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50"
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => {
+                      const val = parseFloat(budgetInput);
+                      if (val > 0) store.setCategoryBudget(cat, val);
+                      setEditingBudget(null);
+                      setBudgetInput('');
+                    }}
+                    className="bg-emerald-500 text-white px-3 py-2 rounded-lg text-xs font-medium"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => { setEditingBudget(null); setBudgetInput(''); }}
+                    className="text-slate-500 text-xs px-2"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
       {/* === DATA === */}
       <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-1 px-1">Data</p>
