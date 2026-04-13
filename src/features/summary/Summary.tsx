@@ -133,47 +133,45 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
   }
 
   return (
-    <div className="flex flex-col gap-4 pb-28 px-4 pt-4">
-      {/* Tabs */}
-      <div className="flex bg-slate-900 rounded-xl p-1">
-        <button
-          onClick={() => setTab('current')}
-          className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
-            tab === 'current' ? 'bg-emerald-500 text-white' : 'text-slate-400'
-          }`}
-        >
-          Current Cycle
-        </button>
-        <button
-          onClick={() => setTab('previous')}
-          className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
-            tab === 'previous' ? 'bg-emerald-500 text-white' : 'text-slate-400'
-          }`}
-        >
-          Previous Cycle
-        </button>
-      </div>
-
-      {/* Cycle label */}
-      <p className="text-center text-sm text-slate-400">{cycle.label}</p>
-
-      {/* Totals */}
-      <div className="grid grid-cols-3 gap-2">
-        <div className="bg-slate-900 rounded-xl p-3 text-center">
-          <p className="text-[10px] text-slate-500 uppercase">Income</p>
-          <p className="text-base font-bold text-emerald-400">{formatMoney(income, sym)}</p>
-        </div>
-        <div className="bg-slate-900 rounded-xl p-3 text-center">
-          <p className="text-[10px] text-slate-500 uppercase">Expenses</p>
-          <p className="text-base font-bold text-red-400">{formatMoney(expenses, sym)}</p>
-        </div>
-        <div className="bg-slate-900 rounded-xl p-3 text-center">
-          <p className="text-[10px] text-slate-500 uppercase">Balance</p>
-          <p
-            className={`text-base font-bold ${balance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}
+    <div className="flex flex-col gap-3 pb-28 px-4 pt-4">
+      {/* Hero: Tabs + totals */}
+      <div className="bg-slate-900 rounded-2xl p-4">
+        {/* Cycle tabs */}
+        <div className="flex bg-slate-800 rounded-lg p-0.5 mb-3">
+          <button
+            onClick={() => setTab('current')}
+            className={`flex-1 py-2 rounded-md text-xs font-medium transition-all ${
+              tab === 'current' ? 'bg-emerald-500 text-white' : 'text-slate-400'
+            }`}
           >
-            {formatMoney(balance, sym)}
-          </p>
+            Current · {tab === 'current' ? cycle.label : ''}
+          </button>
+          <button
+            onClick={() => setTab('previous')}
+            className={`flex-1 py-2 rounded-md text-xs font-medium transition-all ${
+              tab === 'previous' ? 'bg-emerald-500 text-white' : 'text-slate-400'
+            }`}
+          >
+            Previous · {tab === 'previous' ? cycle.label : ''}
+          </button>
+        </div>
+
+        {/* Totals inline */}
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-[10px] text-slate-500">Income</p>
+            <p className="text-sm font-bold text-emerald-400">+{formatMoney(income, sym)}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-[10px] text-slate-500">Expenses</p>
+            <p className="text-sm font-bold text-red-400">-{formatMoney(expenses, sym)}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] text-slate-500">Balance</p>
+            <p className={`text-sm font-bold ${balance >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+              {formatMoney(balance, sym)}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -214,57 +212,43 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
         </div>
       )}
 
-      {/* Search & Filter */}
-      <div className="space-y-3">
-        {/* Search */}
+      {/* Search & Filters */}
+      <div className="space-y-2">
         <div className="relative">
-          <SearchIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <SearchIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search transactions..."
-            className="w-full bg-slate-900 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            placeholder="Search..."
+            className="w-full bg-slate-900 rounded-xl pl-8 pr-4 py-2 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
           />
         </div>
 
-        {/* Filter toggles */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
           {(['all', 'income', 'expense'] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilterType(f)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
+            <button key={f} onClick={() => setFilterType(f)}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all shrink-0 ${
                 filterType === f ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-slate-400'
-              }`}
-            >
-              {f === 'all' ? 'All' : f === 'income' ? 'Income' : 'Expenses'}
+              }`}>
+              {f === 'all' ? 'All' : f === 'income' ? 'Income' : 'Expense'}
             </button>
           ))}
           <div className="w-px bg-slate-800 shrink-0" />
           {(['all', 'needs', 'wants'] as const).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilterTag(f)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
+            <button key={f} onClick={() => setFilterTag(f)}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all shrink-0 ${
                 filterTag === f
                   ? f === 'needs' ? 'bg-blue-500 text-white' : f === 'wants' ? 'bg-purple-500 text-white' : 'bg-emerald-500 text-white'
                   : 'bg-slate-900 text-slate-400'
-              }`}
-            >
-              {f === 'all' ? 'All Tags' : f.charAt(0).toUpperCase() + f.slice(1)}
+              }`}>
+              {f === 'all' ? 'Tags' : f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
-        </div>
-
-        {/* Sort */}
-        <div className="flex gap-2">
-          <span className="text-xs text-slate-500 self-center shrink-0">Sort:</span>
+          <div className="w-px bg-slate-800 shrink-0" />
           {(['date', 'amount', 'category'] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => setSortBy(s)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 ${
+            <button key={s} onClick={() => setSortBy(s)}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all shrink-0 ${
                 sortBy === s ? 'bg-slate-700 text-white' : 'bg-slate-900 text-slate-400'
               }`}
             >

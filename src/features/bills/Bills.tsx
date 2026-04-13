@@ -179,58 +179,63 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
   const totalPaid = grouped.paid.reduce((sum, b) => sum + b.amount, 0);
 
   return (
-    <div className="flex flex-col gap-4 pb-28 px-4 pt-4">
-      {/* Header with cycle navigation */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={() => setCycle(getPrevCycle(cycle))}
-          className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-slate-400 active:bg-slate-800 transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <button
-          onClick={() => setCycle(getCurrentCycle())}
-          className={`text-sm transition-colors ${isCurrentCycle ? 'text-slate-400' : 'text-emerald-400 underline underline-offset-2'}`}
-        >
-          {cycle.label}{!isCurrentCycle && ' (tap for today)'}
-        </button>
-        <button
-          onClick={() => setCycle(getNextCycle(cycle))}
-          className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-slate-400 active:bg-slate-800 transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
-
-      {/* Summary */}
-      {totalCount > 0 && (
-        <div className="bg-slate-900 rounded-2xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs text-slate-400 uppercase tracking-wider">Progress</p>
-            <p className="text-xs text-slate-400">{paidCount} of {totalCount} paid</p>
-          </div>
-          <div className="h-2 bg-slate-800 rounded-full overflow-hidden mb-3">
-            <div
-              className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-              style={{ width: `${totalCount > 0 ? (paidCount / totalCount) * 100 : 0}%` }}
-            />
-          </div>
-          <div className="flex justify-between text-sm">
-            <div>
-              <p className="text-slate-500 text-xs">Paid</p>
-              <p className="text-emerald-400 font-semibold">{formatMoney(totalPaid, sym)}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-slate-500 text-xs">Remaining</p>
-              <p className="text-white font-semibold">{formatMoney(totalDue - totalPaid, sym)}</p>
-            </div>
-          </div>
+    <div className="flex flex-col gap-3 pb-28 px-4 pt-4">
+      {/* Hero: Cycle nav + progress */}
+      <div className="bg-slate-900 rounded-2xl p-4">
+        {/* Cycle navigation */}
+        <div className="flex items-center justify-between mb-3">
+          <button
+            onClick={() => setCycle(getPrevCycle(cycle))}
+            className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 active:bg-slate-700 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setCycle(getCurrentCycle())}
+            className={`text-sm font-medium transition-colors ${isCurrentCycle ? 'text-white' : 'text-emerald-400'}`}
+          >
+            {cycle.label}{!isCurrentCycle && ' ·'}
+          </button>
+          <button
+            onClick={() => setCycle(getNextCycle(cycle))}
+            className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 active:bg-slate-700 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
-      )}
+
+        {/* Stats */}
+        {totalCount > 0 ? (
+          <>
+            <div className="flex justify-between items-end mb-2.5">
+              <div>
+                <p className="text-2xl font-bold text-white">{formatMoney(totalDue, sym)}</p>
+                <p className="text-[10px] text-slate-500">Total this cycle</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-emerald-400">{paidCount}/{totalCount}</p>
+                <p className="text-[10px] text-slate-500">paid</p>
+              </div>
+            </div>
+            <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden mb-2">
+              <div
+                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                style={{ width: `${(paidCount / totalCount) * 100}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-emerald-400">{formatMoney(totalPaid, sym)} paid</span>
+              <span className="text-slate-500">{formatMoney(totalDue - totalPaid, sym)} left</span>
+            </div>
+          </>
+        ) : (
+          <p className="text-sm text-slate-500 text-center py-2">No bills this cycle</p>
+        )}
+      </div>
 
       {/* Overdue */}
       {grouped.overdue.length > 0 && (
@@ -278,14 +283,6 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
           confirmDelete={confirmDelete}
           statusColor="text-emerald-400"
         />
-      )}
-
-      {/* Cycle total */}
-      {totalCount > 0 && (
-        <div className="bg-slate-900/60 rounded-2xl px-4 py-3 flex items-center justify-between">
-          <p className="text-sm text-slate-400">Cycle Total</p>
-          <p className="text-lg font-bold text-white">{formatMoney(totalDue, sym)}</p>
-        </div>
       )}
 
       {/* Completed installments */}
@@ -478,37 +475,32 @@ function BillSection({
   confirmDelete: string | null;
   statusColor: string;
 }) {
+  const dotColor = statusColor === 'text-red-400' ? 'bg-red-400' : statusColor === 'text-emerald-400' ? 'bg-emerald-400' : 'bg-slate-500';
   return (
     <div>
-      <p className={`text-xs uppercase tracking-wider mb-2 ${statusColor}`}>{title}</p>
-      <div className="bg-slate-900 rounded-2xl overflow-hidden divide-y divide-slate-800">
+      <div className="flex items-center gap-2 mb-1.5 px-1">
+        <div className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+        <p className={`text-[10px] uppercase tracking-wider font-medium ${statusColor}`}>{title}</p>
+      </div>
+      <div className="bg-slate-900 rounded-2xl overflow-hidden divide-y divide-slate-800/50">
         {bills.map((bill) => {
           const isPaid = payments.some((p) => p.billId === bill.id);
           const hasInstallments = bill.totalInstallments && bill.currentInstallment;
           return (
-            <div key={bill.id} className="px-4 py-3 flex items-center gap-3">
+            <div key={bill.id} className="px-3 py-2.5 flex items-center gap-2.5">
               {/* Checkbox */}
               <button
                 onClick={() => onTogglePay(bill.id)}
-                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
-                  isPaid
-                    ? 'bg-emerald-500 border-emerald-500'
-                    : 'border-slate-600'
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
+                  isPaid ? 'bg-emerald-500 border-emerald-500' : 'border-slate-600'
                 }`}
               >
                 {isPaid && (
-                  <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="m5 13 4 4L19 7" />
                   </svg>
                 )}
               </button>
-
-              {/* Icon */}
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                isPaid ? 'bg-emerald-500/15 text-emerald-400' : 'bg-slate-800 text-slate-400'
-              }`}>
-                <CategoryIcon name={getCategoryIconName(bill.category, customCategories)} size={16} />
-              </div>
 
               {/* Info — tap to edit */}
               <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onEdit(bill.id)}>
@@ -517,38 +509,29 @@ function BillSection({
                     {bill.name}
                   </p>
                   {hasInstallments && (
-                    <span className="text-xs text-amber-400 font-medium">
-                      ({bill.currentInstallment}/{bill.totalInstallments})
+                    <span className="text-[10px] text-amber-400 font-medium">
+                      {bill.currentInstallment}/{bill.totalInstallments}
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-slate-500">Due {getDueDateLabel(bill.dueDay)}</p>
-                  {hasInstallments && (
-                    <p className="text-xs text-slate-600">
-                      {bill.totalInstallments! - bill.currentInstallment! + (isPaid ? 1 : 0)} left
-                    </p>
-                  )}
-                  {bill.note && <p className="text-xs text-slate-600 truncate">· {bill.note}</p>}
+                <div className="flex items-center gap-1.5">
+                  <p className="text-[10px] text-slate-500">{getDueDateLabel(bill.dueDay)}</p>
+                  {bill.note && <p className="text-[10px] text-slate-600 truncate">· {bill.note}</p>}
                 </div>
               </div>
 
               {/* Amount & delete */}
-              <div className="flex items-center gap-2 shrink-0">
-                <p className={`text-sm font-bold ${isPaid ? 'text-emerald-400' : 'text-white'}`}>
-                  {formatMoney(bill.amount, sym)}
-                </p>
-                <button
-                  onClick={() => onDelete(bill.id)}
-                  className={`text-xs px-2 py-1 rounded-lg transition-all duration-200 ${
-                    confirmDelete === bill.id
-                      ? 'bg-red-500 text-white scale-110'
-                      : 'bg-slate-800 text-slate-400 scale-100'
-                  }`}
-                >
-                  {confirmDelete === bill.id ? 'Sure?' : '×'}
-                </button>
-              </div>
+              <p className={`text-sm font-bold shrink-0 ${isPaid ? 'text-emerald-400' : 'text-white'}`}>
+                {formatMoney(bill.amount, sym)}
+              </p>
+              <button
+                onClick={() => onDelete(bill.id)}
+                className={`text-xs px-1.5 py-0.5 rounded-lg transition-all duration-200 shrink-0 ${
+                  confirmDelete === bill.id ? 'bg-red-500 text-white scale-110' : 'text-slate-600'
+                }`}
+              >
+                {confirmDelete === bill.id ? 'Sure?' : '×'}
+              </button>
             </div>
           );
         })}

@@ -137,108 +137,100 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
   }
 
   return (
-    <div className="flex flex-col gap-4 pb-28 px-4 pt-4">
-      {/* Summary */}
+    <div className="flex flex-col gap-3 pb-28 px-4 pt-4">
+      {/* Hero: Total + affordability */}
       {unpurchased.length > 0 && (
         <div className="bg-slate-900 rounded-2xl p-4">
-          <div className="flex justify-between items-center mb-2">
-            <p className="text-xs text-slate-400 uppercase tracking-wider">{unpurchased.length} item{unpurchased.length !== 1 ? 's' : ''}</p>
-            <p className="text-sm font-bold text-white">{formatMoney(totalWishlist, sym)}</p>
+          <div className="flex items-end justify-between mb-2">
+            <div>
+              <p className="text-2xl font-bold text-white">{formatMoney(totalWishlist, sym)}</p>
+              <p className="text-[10px] text-slate-500">{unpurchased.length} item{unpurchased.length !== 1 ? 's' : ''}</p>
+            </div>
+            <div className="text-right">
+              <div className={`flex items-center gap-1.5 justify-end`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${balance >= totalWishlist ? 'bg-emerald-500' : 'bg-slate-500'}`} />
+                <p className={`text-xs ${balance >= totalWishlist ? 'text-emerald-400' : 'text-slate-500'}`}>
+                  {balance >= totalWishlist ? 'Can afford all' : `${formatMoney(totalWishlist - balance, sym)} short`}
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${balance >= totalWishlist ? 'bg-emerald-500' : 'bg-red-500'}`} />
-            <p className={`text-xs ${balance >= totalWishlist ? 'text-emerald-400' : 'text-slate-500'}`}>
-              {balance >= totalWishlist
-                ? `You can afford everything (${formatMoney(balance, sym)} balance)`
-                : `${formatMoney(totalWishlist - balance, sym)} more needed`
-              }
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Sort */}
-      {unpurchased.length > 1 && (
-        <div className="flex gap-2">
-          <span className="text-xs text-slate-500 self-center shrink-0">Sort:</span>
-          {(['priority', 'price', 'date'] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => setSortBy(s)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                sortBy === s ? 'bg-slate-700 text-white' : 'bg-slate-900 text-slate-400'
-              }`}
-            >
-              {s.charAt(0).toUpperCase() + s.slice(1)}
-            </button>
-          ))}
+          {/* Sort inline */}
+          {unpurchased.length > 1 && (
+            <div className="flex gap-1.5 pt-2 border-t border-slate-800">
+              {(['priority', 'price', 'date'] as const).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setSortBy(s)}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all ${
+                    sortBy === s ? 'bg-slate-700 text-white' : 'text-slate-500'
+                  }`}
+                >
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       {/* Items */}
       {sorted.length > 0 && (
-        <div className="bg-slate-900 rounded-2xl overflow-hidden divide-y divide-slate-800">
+        <div className="bg-slate-900 rounded-2xl overflow-hidden divide-y divide-slate-800/50">
           {sorted.map((item) => {
             const ps = getPriorityStyle(item.priority);
             const canAfford = balance >= item.price;
             const daysWaiting = Math.floor((Date.now() - new Date(item.createdAt).getTime()) / 86400000);
-            const waitLabel = daysWaiting === 0 ? 'Today' : daysWaiting === 1 ? '1 day' : `${daysWaiting} days`;
+            const waitLabel = daysWaiting === 0 ? 'Today' : daysWaiting === 1 ? '1d' : `${daysWaiting}d`;
             return (
-              <div key={item.id} className="px-4 py-3">
-                <div className="flex items-center gap-3">
-                  {/* Purchase checkbox */}
+              <div key={item.id} className="px-3 py-2.5">
+                <div className="flex items-center gap-2.5">
+                  {/* Checkbox */}
                   <button
                     onClick={() => handleTogglePurchased(item.id)}
-                    className="w-6 h-6 rounded-full border-2 border-slate-600 flex items-center justify-center shrink-0 transition-all active:scale-90"
-                  >
-                  </button>
+                    className="w-5 h-5 rounded-full border-2 border-slate-600 flex items-center justify-center shrink-0 transition-all active:scale-90"
+                  />
 
-                  {/* Info — tap to edit */}
+                  {/* Info */}
                   <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleEdit(item.id)}>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <p className="text-sm font-medium text-white truncate">{item.name}</p>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${ps.color} ${ps.bg}/20`}>
-                        {ps.label}
-                      </span>
+                      <span className={`text-[9px] px-1.5 py-px rounded-full font-medium ${ps.color} ${ps.bg}/20`}>{ps.label}</span>
+                      {daysWaiting >= 7 && <span className="text-[9px] text-amber-400">{waitLabel}</span>}
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <p className={`text-[10px] ${daysWaiting >= 7 ? 'text-amber-400' : 'text-slate-600'}`}>
-                        {daysWaiting >= 7 && '⏳ '}
-                        Waiting {waitLabel}
-                      </p>
-                      {item.note && <p className="text-xs text-slate-500 truncate">· {item.note}</p>}
+                    <div className="flex items-center gap-1.5">
+                      {item.note && <p className="text-[10px] text-slate-500 truncate">{item.note}</p>}
+                      {!item.note && daysWaiting < 7 && <p className="text-[10px] text-slate-600">Added {waitLabel} ago</p>}
                     </div>
                   </div>
 
-                  {/* Price & affordability */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-white">{formatMoney(item.price, sym)}</p>
-                      <p className={`text-[10px] ${canAfford ? 'text-emerald-400' : 'text-red-400'}`}>
-                        {canAfford ? 'Can afford' : 'Not yet'}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className={`text-xs px-2 py-1 rounded-lg transition-all duration-200 ${
-                        confirmDelete === item.id ? 'bg-red-500 text-white scale-110' : 'bg-slate-800 text-slate-400'
-                      }`}
-                    >
-                      {confirmDelete === item.id ? 'Sure?' : '×'}
-                    </button>
+                  {/* Price */}
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-bold text-white">{formatMoney(item.price, sym)}</p>
+                    <p className={`text-[9px] ${canAfford ? 'text-emerald-400' : 'text-slate-600'}`}>
+                      {canAfford ? 'Affordable' : `${formatMoney(item.price - balance, sym)} short`}
+                    </p>
                   </div>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className={`text-xs px-1.5 py-0.5 rounded-lg transition-all duration-200 shrink-0 ${
+                      confirmDelete === item.id ? 'bg-red-500 text-white scale-110' : 'text-slate-600'
+                    }`}
+                  >
+                    {confirmDelete === item.id ? 'Sure?' : '×'}
+                  </button>
                 </div>
 
-                {/* Save for this button */}
+                {/* Save for this */}
                 <button
                   onClick={() => handleMoveToSavings(item.id)}
-                  className={`w-full mt-2 py-1.5 rounded-lg text-[11px] font-medium border transition-colors ${
+                  className={`w-full mt-2 py-1 rounded-lg text-[10px] font-medium border transition-colors ${
                     confirmMove === item.id
                       ? 'border-emerald-500 bg-emerald-500 text-white'
-                      : 'border-emerald-500/40 text-emerald-400 active:bg-emerald-500/10'
+                      : 'border-emerald-500/30 text-emerald-400 active:bg-emerald-500/10'
                   }`}
                 >
-                  {confirmMove === item.id ? 'Tap again to confirm' : 'Save for this →'}
+                  {confirmMove === item.id ? 'Tap to confirm' : 'Save for this →'}
                 </button>
               </div>
             );

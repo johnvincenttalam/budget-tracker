@@ -184,37 +184,38 @@ export function Savings({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
   }
 
   return (
-    <div className="flex flex-col gap-4 pb-28 px-4 pt-4">
-      {/* Savings rate */}
-      {income > 0 && (
-        <div className="bg-slate-900 rounded-2xl p-4 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-slate-400">This cycle</p>
-            <p className="text-sm text-slate-300 mt-0.5">
-              {formatMoney(balance, sym)} of {formatMoney(income, sym)} unspent
-            </p>
-          </div>
-          <div className={`text-2xl font-bold ${savingsRate >= 20 ? 'text-emerald-400' : savingsRate >= 0 ? 'text-amber-400' : 'text-red-400'}`}>
-            {savingsRate}%
-          </div>
-        </div>
-      )}
-
-      {/* Total overview */}
-      {goals.length > 0 && (
-        <div className="bg-slate-900 rounded-2xl p-5 text-center">
-          <p className="text-xs text-slate-400 uppercase tracking-wider mb-1">Total Saved</p>
-          <p className="text-3xl font-bold text-emerald-400">{formatMoney(totalSaved, sym)}</p>
-          {totalTarget > 0 && (
-            <>
-              <p className="text-xs text-slate-500 mt-1">of {formatMoney(totalTarget, sym)} target</p>
-              <div className="h-2 bg-slate-800 rounded-full overflow-hidden mt-3">
-                <div
-                  className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                  style={{ width: `${Math.min((totalSaved / totalTarget) * 100, 100)}%` }}
-                />
+    <div className="flex flex-col gap-3 pb-28 px-4 pt-4">
+      {/* Hero: Total saved + savings rate */}
+      {(goals.length > 0 || income > 0) && (
+        <div className="bg-slate-900 rounded-2xl p-4">
+          {goals.length > 0 && (
+            <div className="flex items-end justify-between mb-2">
+              <div>
+                <p className="text-3xl font-bold text-emerald-400">{formatMoney(totalSaved, sym)}</p>
+                <p className="text-[10px] text-slate-500">
+                  {totalTarget > 0 ? `of ${formatMoney(totalTarget, sym)} target` : 'Total saved'}
+                </p>
               </div>
-            </>
+              {income > 0 && (
+                <div className="text-right">
+                  <p className={`text-xl font-bold ${savingsRate >= 20 ? 'text-emerald-400' : savingsRate >= 0 ? 'text-amber-400' : 'text-red-400'}`}>
+                    {savingsRate}%
+                  </p>
+                  <p className="text-[10px] text-slate-500">savings rate</p>
+                </div>
+              )}
+            </div>
+          )}
+          {totalTarget > 0 && (
+            <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min((totalSaved / totalTarget) * 100, 100)}%` }}
+              />
+            </div>
+          )}
+          {goals.length === 0 && income > 0 && (
+            <p className="text-sm text-slate-400">{formatMoney(balance, sym)} unspent this cycle — create a goal to start saving!</p>
           )}
         </div>
       )}
@@ -395,80 +396,57 @@ export function Savings({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
 
         return (
           <div key={goal.id} className="bg-slate-900 rounded-2xl overflow-hidden">
-            <div className="p-4">
+            <div className="p-3.5">
               {/* Goal header */}
-              <div className="flex items-center gap-3 mb-3">
-                <div className={`w-10 h-10 rounded-xl ${gc.bgLight} flex items-center justify-center ${gc.text}`}>
-                  <SavingsIconComponent name={goal.icon} size={20} />
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <div className={`w-8 h-8 rounded-lg ${gc.bgLight} flex items-center justify-center ${gc.text}`}>
+                  <SavingsIconComponent name={goal.icon} size={16} />
                 </div>
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleEdit(goal)}>
-                  <p className="text-sm font-medium text-white">{goal.name}</p>
-                  <p className="text-xs text-slate-500">
-                    {formatMoney(goal.savedAmount, sym)} of {formatMoney(goal.targetAmount, sym)}
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-medium text-white truncate">{goal.name}</p>
+                    {streak >= 2 && <span className="text-[9px] text-amber-400 font-medium">{streak}x</span>}
+                    {isComplete && <span className={`text-[9px] ${gc.text} font-medium`}>Done</span>}
+                  </div>
+                  <p className="text-[10px] text-slate-500">
+                    {formatMoney(goal.savedAmount, sym)} / {formatMoney(goal.targetAmount, sym)}
                   </p>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  {streak >= 2 && (
-                    <span className="text-xs bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-medium">
-                      {streak} cycles
-                    </span>
-                  )}
-                  {isComplete && (
-                    <span className={`text-xs ${gc.bgLight} ${gc.text} px-2 py-0.5 rounded-full font-medium`}>Done</span>
-                  )}
-                  <button
-                    onClick={() => handleDelete(goal.id)}
-                    className={`text-xs px-2 py-1 rounded-lg transition-all duration-200 ${
-                      confirmDelete === goal.id ? 'bg-red-500 text-white scale-110' : 'bg-slate-800 text-slate-400'
-                    }`}
-                  >
-                    {confirmDelete === goal.id ? 'Sure?' : '×'}
-                  </button>
-                </div>
+                <button
+                  onClick={() => handleDelete(goal.id)}
+                  className={`text-xs px-1.5 py-0.5 rounded-lg transition-all duration-200 shrink-0 ${
+                    confirmDelete === goal.id ? 'bg-red-500 text-white scale-110' : 'text-slate-600'
+                  }`}
+                >
+                  {confirmDelete === goal.id ? 'Sure?' : '×'}
+                </button>
               </div>
 
               {/* Progress bar */}
-              <div className="h-2.5 bg-slate-800 rounded-full overflow-hidden mb-2">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ${gc.bg}`}
-                  style={{ width: `${pct}%` }}
-                />
+              <div className="h-2 bg-slate-800 rounded-full overflow-hidden mb-1.5">
+                <div className={`h-full rounded-full transition-all duration-500 ${gc.bg}`} style={{ width: `${pct}%` }} />
               </div>
-              <div className="flex justify-between text-xs">
+              <div className="flex justify-between text-[10px]">
                 <span className="text-slate-500">{pct.toFixed(0)}%</span>
-                <span className="text-slate-500">{formatMoney(goal.targetAmount - goal.savedAmount, sym)} left</span>
+                <span className="text-slate-500">
+                  {deadlineInfo
+                    ? (deadlineInfo.onTrack ? `${deadlineInfo.label} · ${formatMoney(deadlineInfo.perCycle, sym)}/cycle` : 'Past deadline')
+                    : `${formatMoney(goal.targetAmount - goal.savedAmount, sym)} left`
+                  }
+                </span>
               </div>
 
-              {/* Deadline info */}
-              {deadlineInfo && (
-                <div className={`mt-2 flex items-center justify-between text-xs px-3 py-2 rounded-lg ${deadlineInfo.onTrack ? 'bg-slate-800' : 'bg-red-500/10'}`}>
-                  <span className={deadlineInfo.onTrack ? 'text-slate-400' : 'text-red-400'}>
-                    {deadlineInfo.onTrack ? `By ${deadlineInfo.label}` : 'Past deadline'}
-                  </span>
-                  <span className={deadlineInfo.onTrack ? 'text-slate-300 font-medium' : 'text-red-400 font-medium'}>
-                    {formatMoney(deadlineInfo.perCycle, sym)}/cycle
-                  </span>
-                </div>
-              )}
-
-              {/* Action buttons */}
-              <div className="flex gap-2 mt-3">
+              {/* Actions */}
+              <div className="flex gap-2 mt-2.5">
                 <button
-                  onClick={() => {
-                    setContributingId(goal.id);
-                    setContributeAmount('');
-                    setContributeNote('');
-                  }}
-                  className={`flex-1 py-2 rounded-xl text-xs font-medium transition-all ${gc.bg} text-white`}
+                  onClick={() => { setContributingId(goal.id); setContributeAmount(''); setContributeNote(''); }}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-all ${gc.bg} text-white`}
                 >
-                  + Add Money
+                  + Add
                 </button>
                 <button
-                  onClick={() => {
-                    setHistoryId(historyId === goal.id ? null : goal.id);
-                    setContributingId(null);
-                  }}
-                  className={`py-2 px-3 rounded-xl text-xs font-medium transition-all ${
+                  onClick={() => { setHistoryId(historyId === goal.id ? null : goal.id); }}
+                  className={`py-1.5 px-3 rounded-lg text-xs font-medium transition-all ${
                     historyId === goal.id ? 'bg-slate-700 text-slate-300' : 'bg-slate-800 text-slate-400'
                   }`}
                 >

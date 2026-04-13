@@ -133,15 +133,18 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
           </div>
           {/* Mini health score */}
           {income > 0 && (
-            <div className="relative w-12 h-12">
-              <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
-                <circle cx="24" cy="24" r="20" fill="none" stroke="#1e293b" strokeWidth="4" />
-                <circle cx="24" cy="24" r="20" fill="none" stroke={healthScore.color} strokeWidth="4" strokeLinecap="round"
-                  strokeDasharray={`${(healthScore.score / 100) * 125.7} 125.7`} />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-xs font-bold text-white">{healthScore.score}</span>
+            <div className="flex flex-col items-center gap-0.5">
+              <div className="relative w-11 h-11">
+                <svg className="w-11 h-11 -rotate-90" viewBox="0 0 44 44">
+                  <circle cx="22" cy="22" r="18" fill="none" stroke="#1e293b" strokeWidth="3.5" />
+                  <circle cx="22" cy="22" r="18" fill="none" stroke={healthScore.color} strokeWidth="3.5" strokeLinecap="round"
+                    strokeDasharray={`${(healthScore.score / 100) * 113.1} 113.1`} />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-[11px] font-bold text-white">{healthScore.score}</span>
+                </div>
               </div>
+              <span className="text-[9px] font-medium" style={{ color: healthScore.color }}>{healthScore.label}</span>
             </div>
           )}
         </div>
