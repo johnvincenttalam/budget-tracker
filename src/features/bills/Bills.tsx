@@ -7,7 +7,7 @@ import { getBillStatus, getDueDateLabel, type BillStatus } from '../../shared/ut
 import { getCategoryIconName } from '../../shared/utils/categories';
 import { CategoryIcon } from '../../shared/components/Icons';
 import { BottomSheet } from '../../shared/components/BottomSheet';
-import type { Screen, CustomCategory } from '../../shared/types';
+import type { Screen } from '../../shared/types';
 
 export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => void }) {
   const toast = useToast();
@@ -244,7 +244,7 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
           bills={grouped.overdue}
           payments={payments}
           sym={sym}
-          customCategories={customCategories}
+
           onTogglePay={handleTogglePay}
           onDelete={handleDelete}
           onEdit={handleEdit}
@@ -260,7 +260,7 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
           bills={grouped.upcoming}
           payments={payments}
           sym={sym}
-          customCategories={customCategories}
+
           onTogglePay={handleTogglePay}
           onDelete={handleDelete}
           onEdit={handleEdit}
@@ -276,7 +276,7 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
           bills={grouped.paid}
           payments={payments}
           sym={sym}
-          customCategories={customCategories}
+
           onTogglePay={handleTogglePay}
           onDelete={handleDelete}
           onEdit={handleEdit}
@@ -457,7 +457,6 @@ function BillSection({
   bills,
   payments,
   sym,
-  customCategories,
   onTogglePay,
   onDelete,
   onEdit,
@@ -468,7 +467,6 @@ function BillSection({
   bills: { id: string; name: string; amount: number; category: string; dueDay: number; note?: string; totalInstallments?: number; currentInstallment?: number }[];
   payments: { billId: string }[];
   sym: string;
-  customCategories: CustomCategory[];
   onTogglePay: (id: string) => void;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
