@@ -18,6 +18,7 @@ import { Wishlist } from './features/wishlist/Wishlist';
 import { MonthlyReport } from './features/report/MonthlyReport';
 import { Debts } from './features/debts/Debts';
 import { Receivables } from './features/receivables/Receivables';
+import { Wallets } from './features/wallets/Wallets';
 import { WalletIcon, ReceiptIcon, ClipboardCheckIcon } from './shared/components/Icons';
 import { SideMenu } from './shared/components/SideMenu';
 import { haptic } from './shared/utils/haptic';
@@ -60,10 +61,11 @@ export default function App() {
     report: 'Monthly Report',
     debts: 'Debts',
     receivables: 'Receivables',
+    wallets: 'Wallets',
   };
   const showTopBar = !isLocked && !!screenTitles[screen];
 
-  const mainScreens: Screen[] = ['dashboard', 'bills', 'summary', 'savings', 'wishlist', 'analytics', 'settings', 'recurring', 'report', 'debts', 'receivables'];
+  const mainScreens: Screen[] = ['dashboard', 'bills', 'summary', 'savings', 'wishlist', 'analytics', 'settings', 'recurring', 'report', 'debts', 'receivables', 'wallets'];
   const showBottomNav = !isLocked && mainScreens.includes(screen);
 
   function navigate(s: Screen, txId?: string) {
@@ -127,6 +129,7 @@ export default function App() {
         {screen === 'report' && <MonthlyReport onNavigate={navigate} />}
         {screen === 'debts' && <Debts onNavigate={navigate} />}
         {screen === 'receivables' && <Receivables onNavigate={navigate} />}
+        {screen === 'wallets' && <Wallets onNavigate={navigate} />}
       </div>
 
       <InstallPrompt />

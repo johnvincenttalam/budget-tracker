@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import { ArrowLeftIcon, CheckCircleIcon } from '../../shared/components/Icons';
 import type { Screen } from '../../shared/types';
+import { WalletPicker } from '../../shared/components/WalletPicker';
 
 export function EditIncome({ onNavigate, transactionId }: { onNavigate: (s: Screen) => void; transactionId: string }) {
   const store = useBudgetStore();
@@ -11,6 +12,7 @@ export function EditIncome({ onNavigate, transactionId }: { onNavigate: (s: Scre
   const [source, setSource] = useState(transaction?.source ?? '');
   const [date, setDate] = useState(transaction?.date ?? '');
   const [note, setNote] = useState(transaction?.note ?? '');
+  const [walletId, setWalletId] = useState(transaction?.walletId ?? store.defaultWalletId);
   const [saved, setSaved] = useState(false);
 
   if (!transaction || transaction.type !== 'income') {
@@ -28,6 +30,7 @@ export function EditIncome({ onNavigate, transactionId }: { onNavigate: (s: Scre
       date,
       source: source.trim() || 'Income',
       note: note.trim() || undefined,
+      walletId,
     });
     setSaved(true);
     setTimeout(() => onNavigate('summary'), 600);
@@ -69,6 +72,9 @@ export function EditIncome({ onNavigate, transactionId }: { onNavigate: (s: Scre
         className="bg-slate-900 rounded-xl px-4 py-4 text-3xl font-bold text-white placeholder:text-slate-600 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow mb-5 text-center"
         autoFocus
       />
+
+      {/* Wallet */}
+      <WalletPicker walletId={walletId} onChange={setWalletId} className="mb-4" />
 
       {/* Source */}
       <label className="text-xs text-slate-400 uppercase tracking-wider mb-2">Source</label>

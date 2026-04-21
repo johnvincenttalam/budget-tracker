@@ -3,6 +3,7 @@ import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import type { Tag, Screen } from '../../shared/types';
 import { getCategoryIconName } from '../../shared/utils/categories';
 import { CategoryIcon, ArrowLeftIcon, DeleteIcon, CheckCircleIcon } from '../../shared/components/Icons';
+import { WalletPicker } from '../../shared/components/WalletPicker';
 
 export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Screen) => void; transactionId: string }) {
   const store = useBudgetStore();
@@ -15,6 +16,7 @@ export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Scr
   const [tag, setTag] = useState<Tag>(transaction?.tag ?? 'needs');
   const [note, setNote] = useState(transaction?.note ?? '');
   const [date, setDate] = useState(transaction?.date ?? '');
+  const [walletId, setWalletId] = useState(transaction?.walletId ?? store.defaultWalletId);
   const [saved, setSaved] = useState(false);
 
   if (!transaction || transaction.type !== 'expense') {
@@ -42,6 +44,7 @@ export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Scr
       tag,
       date,
       note: note.trim() || undefined,
+      walletId,
     });
     setSaved(true);
     setTimeout(() => onNavigate('summary'), 600);
@@ -76,6 +79,9 @@ export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Scr
       <div className="text-center py-4">
         <p className="text-5xl font-bold text-white tracking-tight min-h-[3.5rem]">{amount || '0'}</p>
       </div>
+
+      {/* Wallet picker */}
+      <WalletPicker walletId={walletId} onChange={setWalletId} className="mb-3" />
 
       {/* Category buttons */}
       <div className="flex gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide">

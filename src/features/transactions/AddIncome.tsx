@@ -6,13 +6,16 @@ import { Input } from '../../shared/components/Input';
 import { Button } from '../../shared/components/Button';
 import { SectionLabel } from '../../shared/components/SectionLabel';
 import type { Screen } from '../../shared/types';
+import { WalletPicker } from '../../shared/components/WalletPicker';
 
 export function AddIncome({ onNavigate, returnScreen = 'dashboard' }: { onNavigate: (s: Screen) => void; returnScreen?: Screen }) {
   const addTransaction = useBudgetStore((s) => s.addTransaction);
+  const defaultWalletId = useBudgetStore((s) => s.defaultWalletId);
   const [amount, setAmount] = useState('');
   const [source, setSource] = useState('');
   const [date, setDate] = useState(todayStr());
   const [note, setNote] = useState('');
+  const [walletId, setWalletId] = useState(defaultWalletId);
   const [saved, setSaved] = useState(false);
 
   const numericAmount = parseFloat(amount) || 0;
@@ -27,6 +30,7 @@ export function AddIncome({ onNavigate, returnScreen = 'dashboard' }: { onNaviga
       date,
       source: source.trim() || 'Income',
       note: note.trim() || undefined,
+      walletId,
     });
     setSaved(true);
     setTimeout(() => {
@@ -73,6 +77,9 @@ export function AddIncome({ onNavigate, returnScreen = 'dashboard' }: { onNaviga
         className="bg-slate-900 rounded-xl px-4 py-4 text-3xl font-bold text-white placeholder:text-slate-600 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow mb-5 text-center"
         autoFocus
       />
+
+      {/* Wallet */}
+      <WalletPicker walletId={walletId} onChange={setWalletId} className="mb-4" />
 
       {/* Source */}
       <SectionLabel className="mb-2">Source</SectionLabel>

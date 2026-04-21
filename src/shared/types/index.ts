@@ -25,6 +25,8 @@ export type Transaction = {
   source?: string; // for income
   tag?: Tag;
   createdAt?: string; // ISO timestamp for sort order
+  walletId?: string;
+  transferId?: string;
 };
 
 export type Cycle = {
@@ -144,6 +146,16 @@ export type Receivable = {
   createdAt: string;
 };
 
+export type Wallet = {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  initialBalance: number;
+  archived: boolean;
+  createdAt: string;
+};
+
 export type Screen =
   | 'dashboard'
   | 'add-expense'
@@ -159,4 +171,5 @@ export type Screen =
   | 'wishlist'
   | 'report'
   | 'debts'
-  | 'receivables';
+  | 'receivables'
+  | 'wallets';

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Transaction, Cycle, CurrencySymbol, CategoryBudget, RecurringTemplate, CustomCategory, BillTemplate, BillPayment, BillOverride, SavingsGoal, SavingsContribution, WishlistItem, DebtItem, DebtPayment, Receivable, Screen } from '../types';
+import type { Transaction, Cycle, CurrencySymbol, CategoryBudget, RecurringTemplate, CustomCategory, BillTemplate, BillPayment, BillOverride, SavingsGoal, SavingsContribution, WishlistItem, DebtItem, DebtPayment, Receivable, Wallet, Screen } from '../types';
 import { DEFAULT_CATEGORIES } from '../types';
 import { isDateInCycle } from '../utils/cycle';
 
@@ -32,6 +32,8 @@ interface BudgetState {
   debtItems: DebtItem[];
   debtPayments: DebtPayment[];
   receivables: Receivable[];
+  wallets: Wallet[];
+  defaultWalletId: string;
   currentScreen: Screen;
   billsCycleStart: string | null;
 
@@ -106,6 +108,14 @@ interface BudgetState {
   deleteReceivable: (id: string) => void;
   settleReceivable: (id: string) => void;
 
+  // Wallets
+  addWallet: (w: Omit<Wallet, 'id' | 'createdAt' | 'archived'>) => void;
+  updateWallet: (id: string, updates: Partial<Omit<Wallet, 'id'>>) => void;
+  deleteWallet: (id: string) => void;
+  setDefaultWalletId: (id: string) => void;
+  transferBetweenWallets: (fromId: string, toId: string, amount: number, date: string, note?: string) => void;
+  getWalletBalance: (walletId: string) => number;
+
   // Custom categories
   addCustomCategory: (cat: CustomCategory) => void;
   removeCustomCategory: (name: string) => void;
@@ -140,6 +150,16 @@ export const useBudgetStore = create<BudgetState>()(
       debtItems: [],
       debtPayments: [],
       receivables: [],
+      wallets: [{
+        id: 'default',
+        name: 'Cash',
+        icon: '\u{1F4B5}',
+        color: '#10b981',
+        initialBalance: 0,
+        archived: false,
+        createdAt: new Date().toISOString(),
+      }],
+      defaultWalletId: 'default',
       currentScreen: 'dashboard' as Screen,
       billsCycleStart: null,
 
@@ -467,6 +487,74 @@ export const useBudgetStore = create<BudgetState>()(
           ),
         })),
 
+      // Wallets
+      addWallet: (w) =>
+        set((state) => ({
+          wallets: [...state.wallets, { ...w, id: genId(), archived: false, createdAt: new Date().toISOString() }],
+        })),
+
+      updateWallet: (id, updates) =>
+        set((state) => ({
+          wallets: state.wallets.map((w) => w.id === id ? { ...w, ...updates } : w),
+        })),
+
+      deleteWallet: (id) =>
+        set((state) => {
+          const hasTransactions = state.transactions.some((t) => (t.walletId ?? 'default') === id);
+          if (hasTransactions) {
+            return { wallets: state.wallets.map((w) => w.id === id ? { ...w, archived: true } : w) };
+          }
+          const newWallets = state.wallets.filter((w) => w.id !== id);
+          const newDefault = state.defaultWalletId === id
+            ? (newWallets[0]?.id ?? 'default')
+            : state.defaultWalletId;
+          return { wallets: newWallets, defaultWalletId: newDefault };
+        }),
+
+      setDefaultWalletId: (id) => set({ defaultWalletId: id }),
+
+      transferBetweenWallets: (fromId, toId, amount, date, note) =>
+        set((state) => {
+          const transferId = genId();
+          const now = new Date().toISOString();
+          const fromTx: Transaction = {
+            id: genId(),
+            type: 'expense',
+            amount,
+            date,
+            note: note || `Transfer to ${state.wallets.find((w) => w.id === toId)?.name ?? 'wallet'}`,
+            category: 'Transfer',
+            walletId: fromId,
+            transferId,
+            createdAt: now,
+          };
+          const toTx: Transaction = {
+            id: genId(),
+            type: 'income',
+            amount,
+            date,
+            note: note || `Transfer from ${state.wallets.find((w) => w.id === fromId)?.name ?? 'wallet'}`,
+            source: 'Transfer',
+            walletId: toId,
+            transferId,
+            createdAt: now,
+          };
+          return { transactions: [...state.transactions, fromTx, toTx] };
+        }),
+
+      getWalletBalance: (walletId) => {
+        const state = get();
+        const wallet = state.wallets.find((w) => w.id === walletId);
+        const initial = wallet?.initialBalance ?? 0;
+        const income = state.transactions
+          .filter((t) => t.type === 'income' && (t.walletId ?? 'default') === walletId)
+          .reduce((sum, t) => sum + t.amount, 0);
+        const expense = state.transactions
+          .filter((t) => t.type === 'expense' && (t.walletId ?? 'default') === walletId)
+          .reduce((sum, t) => sum + t.amount, 0);
+        return initial + income - expense;
+      },
+
       // Custom categories
       addCustomCategory: (cat) =>
         set((state) => ({
@@ -545,6 +633,8 @@ export const useBudgetStore = create<BudgetState>()(
         debtItems: state.debtItems,
         debtPayments: state.debtPayments,
         receivables: state.receivables,
+        wallets: state.wallets,
+        defaultWalletId: state.defaultWalletId,
         currentScreen: state.currentScreen,
         billsCycleStart: state.billsCycleStart,
         cycleSplitDay: state.cycleSplitDay,

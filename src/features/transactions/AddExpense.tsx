@@ -6,6 +6,7 @@ import { getCategoryIconName } from '../../shared/utils/categories';
 import { suggestCategory } from '../../shared/utils/smart';
 import { formatMoney } from '../../shared/utils/format';
 import { CategoryIcon, ArrowLeftIcon, DeleteIcon, CheckCircleIcon } from '../../shared/components/Icons';
+import { WalletPicker } from '../../shared/components/WalletPicker';
 
 function safeEvaluate(expr: string): number {
   // Split expression by + and - while keeping operators
@@ -42,6 +43,7 @@ export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavig
   const [tag, setTag] = useState<Tag>('needs');
   const [date, setDate] = useState(todayStr());
   const [note, setNote] = useState('');
+  const [walletId, setWalletId] = useState(store.defaultWalletId);
   const [saved, setSaved] = useState(false);
 
   const numericAmount = parseFloat(amount) || 0;
@@ -148,6 +150,7 @@ export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavig
       tag,
       date,
       note: note.trim() || undefined,
+      walletId,
     });
     setSaved(true);
     setTimeout(() => {
@@ -214,6 +217,9 @@ export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavig
           ))}
         </div>
       )}
+
+      {/* Wallet picker */}
+      <WalletPicker walletId={walletId} onChange={setWalletId} className="mb-3" />
 
       {/* Category buttons */}
       <div className="flex gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide">
