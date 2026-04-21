@@ -133,7 +133,7 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
   }
 
   return (
-    <div className="flex flex-col gap-3 pb-28 px-4 pt-4">
+    <div className="flex flex-col gap-3 px-5 pt-4">
       {/* Hero: Tabs + totals */}
       <div className="bg-slate-900 rounded-2xl p-4">
         {/* Cycle tabs */}
@@ -221,7 +221,7 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search..."
-            className="w-full bg-slate-900 rounded-xl pl-8 pr-4 py-2 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-900 rounded-xl pl-8 pr-4 py-2 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
           />
         </div>
 

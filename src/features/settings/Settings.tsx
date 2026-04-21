@@ -129,7 +129,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const isDark = store.theme === 'dark';
 
   return (
-    <div className="flex flex-col gap-3 px-4 pt-4 pb-28">
+    <div className="flex flex-col gap-3 px-5 pt-4">
       {/* === PREFERENCES === */}
       <div className="bg-slate-900 rounded-2xl overflow-hidden divide-y divide-slate-800/50">
         {/* Theme toggle */}
@@ -233,7 +233,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
                       value={removePinInput}
                       onChange={(e) => { setRemovePinInput(e.target.value.replace(/\D/g, '').slice(0, 4)); setRemovePinError(false); }}
                       placeholder="4-digit PIN"
-                      className="flex-1 bg-slate-800 rounded-lg px-3 py-2.5 text-sm text-white text-center tracking-[0.5em] placeholder:tracking-normal outline-none focus:ring-1 focus:ring-emerald-500/50"
+                      className="flex-1 bg-slate-800 rounded-lg px-3 py-2.5 text-sm text-white text-center tracking-[0.5em] placeholder:tracking-normal outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
                       autoFocus
                     />
                     <button
@@ -286,7 +286,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
             value={newCatName}
             onChange={(e) => setNewCatName(e.target.value)}
             placeholder="Category name"
-            className="w-full bg-slate-800 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-800 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
             autoFocus
           />
           <div className="grid grid-cols-4 gap-2">
@@ -359,7 +359,7 @@ export function Settings({ onNavigate }: { onNavigate: (s: Screen) => void }) {
                     value={budgetInput}
                     onChange={(e) => setBudgetInput(e.target.value)}
                     placeholder="Amount"
-                    className="flex-1 bg-slate-800 rounded-lg px-3 py-2 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50"
+                    className="flex-1 bg-slate-800 rounded-lg px-3 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
                     autoFocus
                   />
                   <button

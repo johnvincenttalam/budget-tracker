@@ -10,6 +10,7 @@ type ToastData = {
 
 const ToastContext = createContext<(message: string, opts?: { action?: ToastData['action']; duration?: number }) => void>(() => {});
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useToast() {
   return useContext(ToastContext);
 }

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import { todayStr } from '../../shared/utils/cycle';
 import { ArrowLeftIcon, CheckCircleIcon } from '../../shared/components/Icons';
+import { Input } from '../../shared/components/Input';
+import { Button } from '../../shared/components/Button';
+import { SectionLabel } from '../../shared/components/SectionLabel';
 import type { Screen } from '../../shared/types';
 
 export function AddIncome({ onNavigate, returnScreen = 'dashboard' }: { onNavigate: (s: Screen) => void; returnScreen?: Screen }) {
@@ -45,9 +48,9 @@ export function AddIncome({ onNavigate, returnScreen = 'dashboard' }: { onNaviga
   }
 
   return (
-    <div className="flex flex-col px-4 pt-4 pb-6">
+    <div className="flex flex-col h-[calc(100dvh-0.5rem)] px-5 pt-4 pb-4">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-slate-950 flex items-center justify-between pb-3 -mx-4 px-4 pt-0">
+      <div className="sticky top-0 z-10 bg-slate-950 flex items-center justify-between pb-3 -mx-5 px-5 pt-0">
         <button
           onClick={() => onNavigate(returnScreen)}
           className="text-slate-400 p-2 -ml-2 flex items-center gap-1"
@@ -55,24 +58,24 @@ export function AddIncome({ onNavigate, returnScreen = 'dashboard' }: { onNaviga
           <ArrowLeftIcon size={18} />
           <span className="text-sm">Back</span>
         </button>
-        <h2 className="text-base font-semibold text-white">Add Income</h2>
+        <h2 className="text-[15px] font-semibold text-white">Add Income</h2>
         <div className="w-14" />
       </div>
 
       {/* Amount */}
-      <label className="text-xs text-slate-400 uppercase tracking-wider mb-2">Amount</label>
+      <SectionLabel className="mb-2">Amount</SectionLabel>
       <input
         type="number"
         inputMode="decimal"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         placeholder="0.00"
-        className="bg-slate-900 rounded-xl px-4 py-4 text-3xl font-bold text-white placeholder:text-slate-600 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5 text-center"
+        className="bg-slate-900 rounded-xl px-4 py-4 text-3xl font-bold text-white placeholder:text-slate-600 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow mb-5 text-center"
         autoFocus
       />
 
       {/* Source */}
-      <label className="text-xs text-slate-400 uppercase tracking-wider mb-2">Source</label>
+      <SectionLabel className="mb-2">Source</SectionLabel>
       <div className="flex gap-2 flex-wrap mb-3">
         {quickSources.map((s) => (
           <button
@@ -88,41 +91,45 @@ export function AddIncome({ onNavigate, returnScreen = 'dashboard' }: { onNaviga
           </button>
         ))}
       </div>
-      <input
+      <Input
         type="text"
         value={source}
         onChange={(e) => setSource(e.target.value)}
         placeholder="Or type a source..."
-        className="bg-slate-900 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5"
+        className="mb-5"
       />
 
       {/* Date */}
-      <label className="text-xs text-slate-400 uppercase tracking-wider mb-2">Date</label>
-      <input
+      <SectionLabel className="mb-2">Date</SectionLabel>
+      <Input
         type="date"
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        className="bg-slate-900 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 mb-5 [color-scheme:dark]"
+        className="mb-5"
       />
 
       {/* Note */}
-      <label className="text-xs text-slate-400 uppercase tracking-wider mb-2">Note</label>
-      <input
+      <SectionLabel className="mb-2">Note</SectionLabel>
+      <Input
         type="text"
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="Add a note (optional)"
-        className="bg-slate-900 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-8"
+        className="mb-8"
       />
 
       {/* Save */}
-      <button
-        onClick={handleSave}
-        disabled={numericAmount <= 0}
-        className="w-full py-4 rounded-2xl text-lg font-bold transition-all active:scale-[0.98] disabled:opacity-30 bg-emerald-500 text-white"
-      >
-        Save Income
-      </button>
+      <div className="mt-auto">
+        <Button
+          onClick={handleSave}
+          disabled={numericAmount <= 0}
+          variant="primary"
+          size="lg"
+          fullWidth
+        >
+          Save Income
+        </Button>
+      </div>
     </div>
   );
 }

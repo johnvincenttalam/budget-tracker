@@ -111,7 +111,7 @@ export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Scr
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="Note (optional)"
-        className="bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-2"
+        className="bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow mb-2"
       />
 
       {/* Date */}
@@ -119,7 +119,7 @@ export function EditExpense({ onNavigate, transactionId }: { onNavigate: (s: Scr
         type="date"
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        className="bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 mb-3 [color-scheme:dark]"
+        className="bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow mb-3"
       />
 
       {/* Numpad */}

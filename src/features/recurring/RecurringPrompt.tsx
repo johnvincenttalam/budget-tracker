@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
 import { getCurrentCycle, todayStr } from '../../shared/utils/cycle';
 import { formatMoney } from '../../shared/utils/format';
@@ -8,25 +8,22 @@ import type { RecurringTemplate } from '../../shared/types';
 
 const STORAGE_KEY = 'budget-tracker-last-prompted-cycle';
 
+function shouldPrompt(): boolean {
+  const cycle = getCurrentCycle();
+  const lastPrompted = localStorage.getItem(STORAGE_KEY);
+  return lastPrompted !== cycle.startDate;
+}
+
 export function RecurringPrompt() {
   const store = useBudgetStore();
   const sym = store.currencySymbol;
   const templates = store.recurringTemplates.filter((t) => t.enabled);
   const customCategories = store.customCategories;
 
-  const [visible, setVisible] = useState(false);
-  const [pending, setPending] = useState<RecurringTemplate[]>([]);
+  const needsPrompt = shouldPrompt() && templates.length > 0;
+  const [visible, setVisible] = useState(needsPrompt);
   const [confirmed, setConfirmed] = useState<Set<string>>(new Set());
   const [skipped, setSkipped] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    const cycle = getCurrentCycle();
-    const lastPrompted = localStorage.getItem(STORAGE_KEY);
-    if (lastPrompted !== cycle.startDate && templates.length > 0) {
-      setPending(templates);
-      setVisible(true);
-    }
-  }, [templates.length]);
 
   function handleConfirm(t: RecurringTemplate) {
     store.addTransaction({
@@ -49,9 +46,9 @@ export function RecurringPrompt() {
     setVisible(false);
   }
 
-  if (!visible || pending.length === 0) return null;
+  if (!visible || templates.length === 0) return null;
 
-  const allHandled = pending.every((t) => confirmed.has(t.id) || skipped.has(t.id));
+  const allHandled = templates.every((t) => confirmed.has(t.id) || skipped.has(t.id));
 
   return (
     <div className="fixed inset-0 bg-black/70 z-[60] flex items-end justify-center animate-fade-in">
@@ -65,7 +62,7 @@ export function RecurringPrompt() {
         </p>
 
         <div className="space-y-2 max-h-[50vh] overflow-y-auto">
-          {pending.map((t) => {
+          {templates.map((t) => {
             const isConfirmed = confirmed.has(t.id);
             const isSkipped = skipped.has(t.id);
             return (

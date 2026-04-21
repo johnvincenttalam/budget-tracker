@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Transaction, Cycle, CurrencySymbol, CategoryBudget, RecurringTemplate, CustomCategory, BillTemplate, BillPayment, BillOverride, SavingsGoal, SavingsContribution, WishlistItem, Screen } from '../types';
+import type { Transaction, Cycle, CurrencySymbol, CategoryBudget, RecurringTemplate, CustomCategory, BillTemplate, BillPayment, BillOverride, SavingsGoal, SavingsContribution, WishlistItem, DebtItem, DebtPayment, Receivable, Screen } from '../types';
 import { DEFAULT_CATEGORIES } from '../types';
 import { isDateInCycle } from '../utils/cycle';
 
@@ -29,6 +29,9 @@ interface BudgetState {
   savingsGoals: SavingsGoal[];
   savingsContributions: SavingsContribution[];
   wishlistItems: WishlistItem[];
+  debtItems: DebtItem[];
+  debtPayments: DebtPayment[];
+  receivables: Receivable[];
   currentScreen: Screen;
   billsCycleStart: string | null;
 
@@ -89,6 +92,20 @@ interface BudgetState {
   deleteWishlistItem: (id: string) => void;
   toggleWishlistPurchased: (id: string) => void;
 
+  // Debts
+  addDebtItem: (item: Omit<DebtItem, 'id'>) => void;
+  updateDebtItem: (id: string, updates: Partial<Omit<DebtItem, 'id'>>) => void;
+  deleteDebtItem: (id: string) => void;
+  addDebtPayment: (payment: Omit<DebtPayment, 'id'>) => void;
+  deleteDebtPayment: (id: string) => void;
+  getDebtPayments: (debtId: string) => DebtPayment[];
+
+  // Receivables
+  addReceivable: (item: Omit<Receivable, 'id' | 'createdAt' | 'settled'>) => void;
+  updateReceivable: (id: string, updates: Partial<Omit<Receivable, 'id'>>) => void;
+  deleteReceivable: (id: string) => void;
+  settleReceivable: (id: string) => void;
+
   // Custom categories
   addCustomCategory: (cat: CustomCategory) => void;
   removeCustomCategory: (name: string) => void;
@@ -120,6 +137,9 @@ export const useBudgetStore = create<BudgetState>()(
       savingsGoals: [],
       savingsContributions: [],
       wishlistItems: [],
+      debtItems: [],
+      debtPayments: [],
+      receivables: [],
       currentScreen: 'dashboard' as Screen,
       billsCycleStart: null,
 
@@ -377,6 +397,76 @@ export const useBudgetStore = create<BudgetState>()(
           ),
         })),
 
+      // Debts
+      addDebtItem: (item) =>
+        set((state) => ({
+          debtItems: [...state.debtItems, { ...item, id: genId() }],
+        })),
+
+      updateDebtItem: (id, updates) =>
+        set((state) => ({
+          debtItems: state.debtItems.map((d) => d.id === id ? { ...d, ...updates } : d),
+        })),
+
+      deleteDebtItem: (id) =>
+        set((state) => ({
+          debtItems: state.debtItems.filter((d) => d.id !== id),
+          debtPayments: state.debtPayments.filter((p) => p.debtId !== id),
+        })),
+
+      addDebtPayment: (payment) =>
+        set((state) => {
+          const newPayment: DebtPayment = { ...payment, id: genId() };
+          return {
+            debtPayments: [...state.debtPayments, newPayment],
+            debtItems: state.debtItems.map((d) =>
+              d.id === payment.debtId
+                ? { ...d, remainingAmount: Math.max(0, d.remainingAmount - payment.amount) }
+                : d
+            ),
+          };
+        }),
+
+      deleteDebtPayment: (id) =>
+        set((state) => {
+          const payment = state.debtPayments.find((p) => p.id === id);
+          if (!payment) return {};
+          return {
+            debtPayments: state.debtPayments.filter((p) => p.id !== id),
+            debtItems: state.debtItems.map((d) =>
+              d.id === payment.debtId
+                ? { ...d, remainingAmount: Math.min(d.totalAmount, d.remainingAmount + payment.amount) }
+                : d
+            ),
+          };
+        }),
+
+      getDebtPayments: (debtId) =>
+        get().debtPayments.filter((p) => p.debtId === debtId),
+
+      // Receivables
+      addReceivable: (item) =>
+        set((state) => ({
+          receivables: [...state.receivables, { ...item, id: genId(), createdAt: new Date().toISOString(), settled: false }],
+        })),
+
+      updateReceivable: (id, updates) =>
+        set((state) => ({
+          receivables: state.receivables.map((r) => r.id === id ? { ...r, ...updates } : r),
+        })),
+
+      deleteReceivable: (id) =>
+        set((state) => ({
+          receivables: state.receivables.filter((r) => r.id !== id),
+        })),
+
+      settleReceivable: (id) =>
+        set((state) => ({
+          receivables: state.receivables.map((r) =>
+            r.id === id ? { ...r, settled: true, settledAt: new Date().toISOString() } : r
+          ),
+        })),
+
       // Custom categories
       addCustomCategory: (cat) =>
         set((state) => ({
@@ -452,6 +542,9 @@ export const useBudgetStore = create<BudgetState>()(
         savingsGoals: state.savingsGoals,
         savingsContributions: state.savingsContributions,
         wishlistItems: state.wishlistItems,
+        debtItems: state.debtItems,
+        debtPayments: state.debtPayments,
+        receivables: state.receivables,
         currentScreen: state.currentScreen,
         billsCycleStart: state.billsCycleStart,
         cycleSplitDay: state.cycleSplitDay,

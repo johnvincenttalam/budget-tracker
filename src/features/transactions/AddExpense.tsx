@@ -69,7 +69,7 @@ export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavig
   }
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-1rem)] px-4 pt-4 pb-2">
+    <div className="flex flex-col h-[calc(100dvh-0.5rem)] px-5 pt-4 pb-2">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-slate-950 flex items-center justify-between pb-3 -mx-4 px-4 pt-0">
         <button
@@ -138,7 +138,7 @@ export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavig
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="Note (optional)"
-        className="w-full bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50 mb-2"
+        className="w-full bg-slate-900 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow mb-2"
       />
 
       {/* Category suggestion */}
@@ -157,7 +157,7 @@ export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavig
         type="date"
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        className="w-full bg-slate-900 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 [color-scheme:dark] mb-3"
+        className="w-full bg-slate-900 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow mb-3"
       />
 
       {/* Numpad */}
@@ -183,7 +183,7 @@ export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavig
       <button
         onClick={handleSave}
         disabled={numericAmount <= 0}
-        className="mt-3 mb-2 w-full py-4 rounded-2xl text-lg font-bold transition-all active:scale-[0.98] disabled:opacity-30 bg-emerald-500 text-white"
+        className="mt-3 mb-2 w-full py-3.5 rounded-2xl text-base font-bold transition-all active:scale-[0.98] disabled:opacity-30 bg-emerald-500 text-white"
       >
         Save Expense
       </button>

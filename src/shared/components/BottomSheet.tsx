@@ -13,7 +13,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
   const startY = useRef(0);
   const sheetRef = useRef<HTMLDivElement>(null);
 
-  // Lock body scroll when sheet is open
+  // Lock body scroll when sheet is open, reset drag state when closed
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -21,14 +21,10 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
         document.body.style.overflow = '';
       };
     }
-  }, [open]);
-
-  // Reset drag state when sheet closes
-  useEffect(() => {
-    if (!open) {
-      setDragY(0);
-      setIsDragging(false);
-    }
+    // Reset drag state when closed — intentional sync before null render
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDragY(0);
+    setIsDragging(false);
   }, [open]);
 
   function handleTouchStart(e: React.TouchEvent) {
@@ -73,7 +69,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
           transition: isDragging ? 'none' : 'transform 0.25s ease-out',
         }}
       >
-        <div className="max-w-2xl mx-auto bg-slate-900 rounded-t-3xl max-h-[90dvh] flex flex-col shadow-2xl">
+        <div className="max-w-2xl mx-auto bg-slate-900 rounded-t-[1.75rem] max-h-[90dvh] flex flex-col shadow-2xl">
           {/* Drag handle area — touch target for swipe */}
           <div
             onTouchStart={handleTouchStart}
@@ -90,7 +86,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onClose(); }}
-              className="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 flex items-center justify-center active:bg-slate-700"
+              className="w-9 h-9 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center active:bg-slate-700 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -99,7 +95,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
           </div>
 
           {/* Scrollable content */}
-          <div className="flex-1 overflow-y-auto px-5 pt-2 pb-6">
+          <div className="flex-1 overflow-y-auto px-5 pt-2 pb-8">
             {children}
           </div>
         </div>

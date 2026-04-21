@@ -112,6 +112,38 @@ export type WishlistItem = {
   createdAt: string;
 };
 
+export type DebtItem = {
+  id: string;
+  name: string;
+  totalAmount: number;
+  remainingAmount: number;
+  interestRate: number;
+  minimumPayment: number;
+  dueDay: number;
+  icon: string;
+  color: string;
+};
+
+export type DebtPayment = {
+  id: string;
+  debtId: string;
+  amount: number;
+  date: string;
+  cycleKey: string;
+  note?: string;
+};
+
+export type Receivable = {
+  id: string;
+  personName: string;
+  amount: number;
+  reason: string;
+  dueDate?: string;
+  settled: boolean;
+  settledAt?: string;
+  createdAt: string;
+};
+
 export type Screen =
   | 'dashboard'
   | 'add-expense'
@@ -125,4 +157,6 @@ export type Screen =
   | 'bills'
   | 'savings'
   | 'wishlist'
-  | 'report';
+  | 'report'
+  | 'debts'
+  | 'receivables';

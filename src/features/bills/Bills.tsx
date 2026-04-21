@@ -179,7 +179,7 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
   const totalPaid = grouped.paid.reduce((sum, b) => sum + b.amount, 0);
 
   return (
-    <div className="flex flex-col gap-3 pb-28 px-4 pt-4">
+    <div className="flex flex-col gap-3 px-5 pt-4">
       {/* Hero: Cycle nav + progress */}
       <div className="bg-slate-900 rounded-2xl p-4">
         {/* Cycle navigation */}
@@ -351,7 +351,7 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Bill name (e.g. Electricity)"
-            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
           />
 
           <div className="grid grid-cols-2 gap-3">
@@ -361,7 +361,7 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Amount"
-              className="bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+              className="bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
             />
             <input
               type="number"
@@ -369,7 +369,7 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
               value={dueDay}
               onChange={(e) => setDueDay(e.target.value.replace(/\D/g, '').slice(0, 2))}
               placeholder="Due day (1-31)"
-              className="bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+              className="bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
             />
           </div>
 
@@ -393,7 +393,7 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Note (optional)"
-            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
           />
 
           {/* Installment fields */}
@@ -406,7 +406,7 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
                 value={currentInstallment}
                 onChange={(e) => setCurrentInstallment(e.target.value.replace(/\D/g, '').slice(0, 3))}
                 placeholder="Current (e.g. 2)"
-                className="bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+                className="bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
               />
               <input
                 type="number"
@@ -414,7 +414,7 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
                 value={totalInstallments}
                 onChange={(e) => setTotalInstallments(e.target.value.replace(/\D/g, '').slice(0, 3))}
                 placeholder="Total (e.g. 6)"
-                className="bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+                className="bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
               />
             </div>
           </div>

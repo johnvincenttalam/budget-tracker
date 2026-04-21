@@ -53,7 +53,7 @@ export function Analytics({ onNavigate: _onNavigate }: { onNavigate: (s: Screen)
   const prevSavingsRate = prevIncome > 0 ? Math.round((prevBalance / prevIncome) * 100) : 0;
 
   return (
-    <div className="flex flex-col gap-3 pb-28 px-4 pt-4">
+    <div className="flex flex-col gap-3 px-5 pt-4">
       {/* Cycle toggle */}
       <div className="flex bg-slate-900 rounded-xl p-0.5">
         <button onClick={() => setTab('current')}

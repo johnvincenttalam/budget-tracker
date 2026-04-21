@@ -17,15 +17,47 @@
   --color-emerald-450: #30D158;
   --color-emerald-400: #30D158;
   --color-emerald-500: #34C759;
-  --font-sans: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --animate-fade-in: fade-in 0.3s ease-out;
-  --animate-slide-up: slide-up 0.3s ease-out;
-  --animate-scale-in: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  --animate-pop: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* ── Design Tokens ── */
+  --spacing-page-x: 1.25rem;
+  --spacing-section-gap: 0.75rem;
+  --spacing-bottom-safe: 6.5rem;
+
+  --text-hero: 2.25rem;
+  --text-title: 1rem;
+  --text-body: 0.875rem;
+  --text-caption: 0.75rem;
+  --text-micro: 0.625rem;
+
+  --radius-card: 1.25rem;
+  --radius-button: 0.75rem;
+  --radius-pill: 9999px;
+
+  --icon-sm: 1rem;
+  --icon-md: 1.25rem;
+  --icon-lg: 1.5rem;
+
+  /* ── Semantic surface colors ── */
+  --color-surface-primary: #000000;
+  --color-surface-secondary: #1C1C1E;
+  --color-surface-tertiary: #2C2C2E;
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #AEAEB2;
+  --color-text-muted: #636366;
+
+  /* ── Animations (snappy) ── */
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-slide-up: slide-up 0.25s ease-out;
+  --animate-scale-in: scale-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --animate-pop: pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   --animate-success: success 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  --animate-fade-out: fade-out 0.3s ease-in forwards;
+  --animate-fade-out: fade-out 0.2s ease-in forwards;
   --animate-shake: shake 0.4s ease-in-out;
   --animate-slide-right: slide-right 0.25s ease-out;
+  --animate-reveal-up: reveal-up 0.4s ease-out both;
+  --animate-reveal-scale: reveal-scale 0.35s ease-out both;
+  --animate-shimmer: shimmer 1.5s ease-in-out infinite;
 }
 
 @keyframes fade-in {
@@ -72,15 +104,43 @@
   100% { opacity: 1; transform: scale(1); }
 }
 
-/* ── Theme transition ── */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes reveal-scale {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Tap highlight ── */
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body, #root,
-div, span, button, input, select, textarea, a, p, h1, h2, h3, h4, h5, h6,
-svg {
+/* ── Theme transitions: only on containers, not all elements ── */
+.theme-transition,
+.theme-transition *:not(svg):not(path) {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ── Skeleton loader ── */
+.skeleton {
+  background: linear-gradient(90deg, #1C1C1E 25%, #2C2C2E 50%, #1C1C1E 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+[data-theme="light"] .skeleton {
+  background: linear-gradient(90deg, #E5E5EA 25%, #F2F2F7 50%, #E5E5EA 75%);
+  background-size: 200% 100%;
 }
 
 /* ── Light mode color overrides (iOS light) ── */
@@ -98,6 +158,21 @@ svg {
   --color-slate-100: #1C1C1E;
   --color-emerald-400: #34C759;
   --color-emerald-500: #248A3D;
+
+  /* Semantic surfaces for light mode */
+  --color-surface-primary: #FFFFFF;
+  --color-surface-secondary: #F2F2F7;
+  --color-surface-tertiary: #E5E5EA;
+  --color-text-primary: #000000;
+  --color-text-secondary: #48484A;
+  --color-text-muted: #8E8E93;
+
+  color-scheme: light;
+}
+
+/* Dark mode color scheme */
+[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 /* Restore white text on colored surfaces in light mode */
@@ -109,11 +184,6 @@ svg {
 [data-theme="light"] .bg-purple-500,
 [data-theme="light"] .bg-slate-600 {
   --color-white: #ffffff;
-}
-
-/* Handle date input color scheme per theme */
-[data-theme="light"] input[type="date"] {
-  color-scheme: light !important;
 }
 
 body {

@@ -58,7 +58,7 @@ export function RecurringManage({ onNavigate: _onNavigate }: { onNavigate: (s: S
   const totalEnabled = templates.filter((t) => t.enabled).reduce((sum, t) => sum + t.amount, 0);
 
   return (
-    <div className="flex flex-col gap-3 px-4 pt-4 pb-28">
+    <div className="flex flex-col gap-3 px-5 pt-4">
       {/* Summary */}
       {templates.length > 0 && (
         <div className="bg-slate-900 rounded-2xl p-4 flex items-center justify-between">
@@ -138,7 +138,7 @@ export function RecurringManage({ onNavigate: _onNavigate }: { onNavigate: (s: S
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="Amount"
-            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
           />
 
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
@@ -172,7 +172,7 @@ export function RecurringManage({ onNavigate: _onNavigate }: { onNavigate: (s: S
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Note (optional)"
-            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
           />
 
           <button

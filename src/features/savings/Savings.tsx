@@ -184,7 +184,7 @@ export function Savings({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
   }
 
   return (
-    <div className="flex flex-col gap-3 pb-28 px-4 pt-4">
+    <div className="flex flex-col gap-3 px-5 pt-4">
       {/* Hero: Total saved + savings rate */}
       {(goals.length > 0 || income > 0) && (
         <div className="bg-slate-900 rounded-2xl p-4">
@@ -344,7 +344,7 @@ export function Savings({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
               value={transferAmount}
               onChange={(e) => setTransferAmount(e.target.value)}
               placeholder="Amount"
-              className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+              className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
             />
             <div className="flex gap-2">
               <button
@@ -534,14 +534,14 @@ export function Savings({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
                 value={contributeAmount}
                 onChange={(e) => setContributeAmount(e.target.value)}
                 placeholder="Amount"
-                className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+                className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
               />
               <input
                 type="text"
                 value={contributeNote}
                 onChange={(e) => setContributeNote(e.target.value)}
                 placeholder="Note (optional)"
-                className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+                className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
               />
               <div className="flex gap-2">
                 <button
@@ -574,7 +574,7 @@ export function Savings({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Goal name (e.g. Emergency Fund)"
-            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
           />
 
           <input
@@ -583,7 +583,7 @@ export function Savings({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
             value={targetAmount}
             onChange={(e) => setTargetAmount(e.target.value)}
             placeholder="Target amount"
-            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
           />
 
           {/* Deadline */}
@@ -593,7 +593,7 @@ export function Savings({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
               type="date"
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
-              className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-emerald-500/50 [color-scheme:dark]"
+              className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
             />
           </div>
 

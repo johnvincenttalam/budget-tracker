@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useToast } from '../../shared/components/ToastProvider';
 import { BottomSheet } from '../../shared/components/BottomSheet';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
@@ -48,6 +48,9 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
     const order: Record<WishlistPriority, number> = { need: 0, want: 1, someday: 2 };
     return order[a.priority] - order[b.priority];
   });
+
+  // eslint-disable-next-line react-hooks/purity
+  const now = useMemo(() => Date.now(), []);
 
   function resetForm() {
     setName('');
@@ -137,7 +140,7 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
   }
 
   return (
-    <div className="flex flex-col gap-3 pb-28 px-4 pt-4">
+    <div className="flex flex-col gap-3 px-5 pt-4">
       {/* Hero: Total + affordability */}
       {unpurchased.length > 0 && (
         <div className="bg-slate-900 rounded-2xl p-4">
@@ -180,7 +183,7 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
           {sorted.map((item) => {
             const ps = getPriorityStyle(item.priority);
             const canAfford = balance >= item.price;
-            const daysWaiting = Math.floor((Date.now() - new Date(item.createdAt).getTime()) / 86400000);
+            const daysWaiting = Math.floor((now - new Date(item.createdAt).getTime()) / 86400000);
             const waitLabel = daysWaiting === 0 ? 'Today' : daysWaiting === 1 ? '1d' : `${daysWaiting}d`;
             return (
               <div key={item.id} className="px-3 py-2.5">
@@ -310,7 +313,7 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Item name"
-            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
           />
 
           <input
@@ -319,7 +322,7 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             placeholder="Estimated price"
-            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
           />
 
           {/* Priority */}
@@ -345,7 +348,7 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Note (optional)"
-            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
           />
 
           <input
@@ -353,7 +356,7 @@ export function Wishlist({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) 
             value={link}
             onChange={(e) => setLink(e.target.value)}
             placeholder="Link (optional)"
-            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="w-full bg-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none focus:ring-2 focus:ring-emerald-500/40 transition-shadow"
           />
 
           <button

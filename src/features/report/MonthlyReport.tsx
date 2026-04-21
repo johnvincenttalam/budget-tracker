@@ -81,7 +81,7 @@ export function MonthlyReport({ onNavigate: _onNavigate }: { onNavigate: (s: Scr
   const CATEGORY_COLORS = ['#34D399', '#60A5FA', '#F472B6', '#FBBF24', '#A78BFA', '#FB923C', '#2DD4BF', '#F87171'];
 
   return (
-    <div className="flex flex-col gap-3 pb-28 px-4 pt-4">
+    <div className="flex flex-col gap-3 px-5 pt-4">
       {/* Month navigation */}
       <div className="flex items-center justify-between">
         <button onClick={prevMonth} className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-slate-400 active:bg-slate-800">
