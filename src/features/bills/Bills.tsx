@@ -6,6 +6,7 @@ import { formatMoney } from '../../shared/utils/format';
 import { getBillStatus, getDueDateLabel, type BillStatus } from '../../shared/utils/bills';
 import { getCategoryIconName } from '../../shared/utils/categories';
 import { CategoryIcon } from '../../shared/components/Icons';
+import { ServiceAvatar } from '../../shared/components/ServiceAvatar';
 import { BottomSheet } from '../../shared/components/BottomSheet';
 import type { Screen } from '../../shared/types';
 
@@ -499,6 +500,9 @@ function BillSection({
                   </svg>
                 )}
               </button>
+
+              {/* Brand avatar */}
+              <ServiceAvatar name={bill.name} size={28} />
 
               {/* Info — tap to edit */}
               <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onEdit(bill.id)}>

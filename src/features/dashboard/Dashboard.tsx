@@ -12,6 +12,12 @@ import { Card } from '../../shared/components/Card';
 import { SectionLabel } from '../../shared/components/SectionLabel';
 import { EmptyState } from '../../shared/components/EmptyState';
 import { RecurringPrompt } from '../recurring/RecurringPrompt';
+import { PaydayCountdown } from './PaydayCountdown';
+import { WeekChart } from './WeekChart';
+import { TodaySpending } from './TodaySpending';
+import { UpcomingBills } from './UpcomingBills';
+import { UpcomingSection } from './UpcomingSection';
+import { BudgetProgressCards } from './BudgetProgressCards';
 import type { Screen } from '../../shared/types';
 
 export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
@@ -140,9 +146,20 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         {tip}
       </p>
 
+      {/* === PAYDAY COUNTDOWN === */}
+      <div className="animate-reveal-up" style={{ animationDelay: '90ms' }}>
+        <PaydayCountdown />
+      </div>
+
+      {/* === TODAY SPENDING + WEEK CHART === */}
+      <div className="grid grid-cols-2 gap-2 animate-reveal-up" style={{ animationDelay: '120ms' }}>
+        <TodaySpending />
+        <WeekChart />
+      </div>
+
       {/* === SMART INSIGHTS === */}
       {(forecast || anomalies.length > 0) && (
-        <Card size="md" ring ringColor="ring-amber-500/20" className="animate-reveal-up" style={{ animationDelay: '120ms' }}>
+        <Card size="md" ring ringColor="ring-amber-500/20" className="animate-reveal-up" style={{ animationDelay: '180ms' }}>
           <div className="flex items-center gap-2 mb-2.5">
             <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
@@ -169,7 +186,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
       )}
 
       {/* === QUICK ACCESS: Bills / Savings / Wishlist === */}
-      <div className="grid grid-cols-3 gap-2 animate-reveal-up" style={{ animationDelay: '180ms' }}>
+      <div className="grid grid-cols-3 gap-2 animate-reveal-up" style={{ animationDelay: '240ms' }}>
         {billsTotal > 0 && (
           <Card size="sm" onClick={() => onNavigate('bills')}>
             <ClipboardCheckIcon size={16} className="text-slate-400 mb-1.5" />
@@ -195,9 +212,24 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         )}
       </div>
 
+      {/* === UPCOMING BILLS === */}
+      <div className="animate-reveal-up" style={{ animationDelay: '280ms' }}>
+        <UpcomingBills onNavigate={onNavigate} />
+      </div>
+
+      {/* === UPCOMING SECTION === */}
+      <div className="animate-reveal-up" style={{ animationDelay: '320ms' }}>
+        <UpcomingSection />
+      </div>
+
+      {/* === BUDGET PROGRESS CARDS === */}
+      <div className="animate-reveal-up" style={{ animationDelay: '360ms' }}>
+        <BudgetProgressCards />
+      </div>
+
       {/* === CATEGORIES === */}
       {Object.keys(byCategory).length > 0 && (
-        <Card className="animate-reveal-up" style={{ animationDelay: '300ms' }}>
+        <Card className="animate-reveal-up" style={{ animationDelay: '400ms' }}>
           <SectionLabel className="mb-3">Expenses by Category</SectionLabel>
           <div className="space-y-2.5">
             {Object.entries(byCategory)
@@ -231,7 +263,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
 
       {/* === RECENT TRANSACTIONS === */}
       {recentTxns.length > 0 && (
-        <div className="animate-reveal-up" style={{ animationDelay: '360ms' }}>
+        <div className="animate-reveal-up" style={{ animationDelay: '440ms' }}>
           <SectionLabel className="mb-2" action={
             <button onClick={() => onNavigate('summary')} className="text-xs text-emerald-400 font-medium">View all</button>
           }>
