@@ -54,7 +54,7 @@ export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavig
     const seen = new Set<string>();
     const results: { amount: number; category: string; note: string; tag: Tag }[] = [];
     const sorted = [...store.transactions]
-      .filter((t) => t.type === 'expense')
+      .filter((t) => t.type === 'expense' && !t.transferId)
       .sort((a, b) => (b.createdAt ?? b.date).localeCompare(a.createdAt ?? a.date));
 
     for (const t of sorted) {
@@ -240,23 +240,19 @@ export function AddExpense({ onNavigate, returnScreen = 'dashboard' }: { onNavig
       </div>
 
       {/* Needs / Wants toggle */}
-      <div className="flex justify-center gap-2 mb-3">
+      <div className="flex bg-slate-900 rounded-xl p-0.5 mb-3">
         <button
           onClick={() => setTag('needs')}
-          className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-            tag === 'needs'
-              ? 'bg-blue-500 text-white'
-              : 'bg-slate-900 text-slate-400'
+          className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
+            tag === 'needs' ? 'bg-blue-500 text-white' : 'text-slate-400'
           }`}
         >
           Needs
         </button>
         <button
           onClick={() => setTag('wants')}
-          className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-            tag === 'wants'
-              ? 'bg-purple-500 text-white'
-              : 'bg-slate-900 text-slate-400'
+          className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
+            tag === 'wants' ? 'bg-purple-500 text-white' : 'text-slate-400'
           }`}
         >
           Wants

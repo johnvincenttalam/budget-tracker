@@ -28,7 +28,7 @@ export function getAchievements(input: AchievementInput): Achievement[] {
 
   const balance = income - expenses;
   const totalSaved = savingsGoals.reduce((s, g) => s + g.savedAmount, 0);
-  const expenseCount = transactions.filter((t) => t.type === 'expense' && isDateInCycle(t.date, cycle)).length;
+  const expenseCount = transactions.filter((t) => t.type === 'expense' && !t.transferId && isDateInCycle(t.date, cycle)).length;
   const completedGoals = savingsGoals.filter((g) => g.savedAmount >= g.targetAmount).length;
 
   return [
@@ -39,7 +39,7 @@ export function getAchievements(input: AchievementInput): Achievement[] {
       description: 'Log your first expense',
       icon: 'pencil',
       type: 'permanent' as const,
-      unlocked: transactions.filter((t) => t.type === 'expense').length > 0,
+      unlocked: transactions.filter((t) => t.type === 'expense' && !t.transferId).length > 0,
     },
     {
       id: 'first-save',

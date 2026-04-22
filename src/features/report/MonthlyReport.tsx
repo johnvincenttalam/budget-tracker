@@ -25,15 +25,15 @@ export function MonthlyReport({ onNavigate: _onNavigate }: { onNavigate: (s: Scr
   const txns2 = firstHalf.startDate !== secondHalf.startDate ? store.getTransactionsForCycle(secondHalf) : [];
   const allTxns = [...txns1, ...txns2];
 
-  const totalIncome = allTxns.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const totalExpenses = allTxns.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const totalIncome = allTxns.filter((t) => t.type === 'income' && !t.transferId).reduce((s, t) => s + t.amount, 0);
+  const totalExpenses = allTxns.filter((t) => t.type === 'expense' && !t.transferId).reduce((s, t) => s + t.amount, 0);
   const totalBalance = totalIncome - totalExpenses;
   const savingsRate = totalIncome > 0 ? Math.round((totalBalance / totalIncome) * 100) : 0;
-  const txnCount = allTxns.length;
+  const txnCount = allTxns.filter((t) => !t.transferId).length;
 
   // Category breakdown
   const byCategory: Record<string, number> = {};
-  for (const t of allTxns.filter((t) => t.type === 'expense')) {
+  for (const t of allTxns.filter((t) => t.type === 'expense' && !t.transferId)) {
     const cat = t.category ?? 'Other';
     byCategory[cat] = (byCategory[cat] ?? 0) + t.amount;
   }
@@ -65,8 +65,8 @@ export function MonthlyReport({ onNavigate: _onNavigate }: { onNavigate: (s: Scr
   const totalBillAmount = [...bills1, ...bills2].reduce((s, b) => s + b.amount, 0);
 
   // Needs vs wants
-  const needs = allTxns.filter((t) => t.type === 'expense' && t.tag === 'needs').reduce((s, t) => s + t.amount, 0);
-  const wants = allTxns.filter((t) => t.type === 'expense' && t.tag === 'wants').reduce((s, t) => s + t.amount, 0);
+  const needs = allTxns.filter((t) => t.type === 'expense' && !t.transferId && t.tag === 'needs').reduce((s, t) => s + t.amount, 0);
+  const wants = allTxns.filter((t) => t.type === 'expense' && !t.transferId && t.tag === 'wants').reduce((s, t) => s + t.amount, 0);
 
   // Navigate month
   function prevMonth() {

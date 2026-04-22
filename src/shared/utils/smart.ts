@@ -23,7 +23,7 @@ export function forecastCycleSpending(
   );
 
   const expenses = transactions
-    .filter((t) => t.type === 'expense' && isDateInCycle(t.date, cycle))
+    .filter((t) => t.type === 'expense' && !t.transferId && isDateInCycle(t.date, cycle))
     .reduce((sum, t) => sum + t.amount, 0);
 
   if (expenses === 0) return null;
@@ -45,26 +45,28 @@ export function detectSpendingAnomalies(
   previousCycles: Cycle[]
 ): { category: string; current: number; average: number; pctIncrease: number }[] {
   const expensesInCycle = (cycle: Cycle) =>
-    transactions.filter((t) => t.type === 'expense' && isDateInCycle(t.date, cycle));
+    transactions.filter((t) => t.type === 'expense' && !t.transferId && isDateInCycle(t.date, cycle));
 
-  // Group current cycle expenses by category
+  // Group current cycle expenses by category (skip catch-all 'Other')
   const currentByCategory: Record<string, number> = {};
   for (const t of expensesInCycle(currentCycle)) {
     const cat = t.category ?? 'Other';
+    if (cat === 'Other') continue;
     currentByCategory[cat] = (currentByCategory[cat] ?? 0) + t.amount;
   }
 
-  // Average per category across previous cycles
+  // Sum per category per previous cycle (zero cycles contribute a 0)
   const previousByCategory: Record<string, number[]> = {};
   for (const cycle of previousCycles) {
     const sums: Record<string, number> = {};
     for (const t of expensesInCycle(cycle)) {
       const cat = t.category ?? 'Other';
+      if (cat === 'Other') continue;
       sums[cat] = (sums[cat] ?? 0) + t.amount;
     }
-    for (const cat of Object.keys(sums)) {
+    for (const cat of Object.keys(currentByCategory)) {
       if (!previousByCategory[cat]) previousByCategory[cat] = [];
-      previousByCategory[cat].push(sums[cat]);
+      previousByCategory[cat].push(sums[cat] ?? 0);
     }
   }
 

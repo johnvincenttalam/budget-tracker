@@ -18,7 +18,7 @@ export function TodaySpending() {
 
     if (period === 'D') {
       return store.transactions
-        .filter((t) => t.type === 'expense' && t.date === today)
+        .filter((t) => t.type === 'expense' && !t.transferId && t.date === today)
         .reduce((sum, t) => sum + t.amount, 0);
     }
 
@@ -27,7 +27,7 @@ export function TodaySpending() {
       d.setDate(d.getDate() - 6);
       const weekStart = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
       return store.transactions
-        .filter((t) => t.type === 'expense' && t.date >= weekStart && t.date <= today)
+        .filter((t) => t.type === 'expense' && !t.transferId && t.date >= weekStart && t.date <= today)
         .reduce((sum, t) => sum + t.amount, 0);
     }
 

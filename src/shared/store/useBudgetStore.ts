@@ -80,6 +80,10 @@ interface BudgetState {
   cycleSplitDay: number;
   setCycleSplitDay: (day: number) => void;
 
+  // Payday
+  expectedSalary: number;
+  setExpectedSalary: (amount: number) => void;
+
   // Savings
   addSavingsGoal: (goal: Omit<SavingsGoal, 'id' | 'createdAt'>) => void;
   updateSavingsGoal: (id: string, updates: Partial<Omit<SavingsGoal, 'id'>>) => void;
@@ -153,7 +157,7 @@ export const useBudgetStore = create<BudgetState>()(
       wallets: [{
         id: 'default',
         name: 'Cash',
-        icon: '\u{1F4B5}',
+        icon: 'Cash',
         color: '#10b981',
         initialBalance: 0,
         archived: false,
@@ -186,6 +190,14 @@ export const useBudgetStore = create<BudgetState>()(
       deleteTransaction: (id) =>
         set((state) => {
           const deleted = state.transactions.find((t) => t.id === id);
+          if (deleted?.transferId) {
+            // Delete both sides of the transfer; no restore (would require pairing)
+            const pairId = deleted.transferId;
+            return {
+              transactions: state.transactions.filter((t) => t.transferId !== pairId),
+              lastDeletedTransaction: null,
+            };
+          }
           return {
             transactions: state.transactions.filter((t) => t.id !== id),
             lastDeletedTransaction: deleted ?? null,
@@ -343,6 +355,10 @@ export const useBudgetStore = create<BudgetState>()(
       // Cycle config
       cycleSplitDay: 15,
       setCycleSplitDay: (day) => set({ cycleSplitDay: day }),
+
+      // Payday
+      expectedSalary: 0,
+      setExpectedSalary: (amount) => set({ expectedSalary: Math.max(0, amount) }),
 
       // Savings
       addSavingsGoal: (goal) =>
@@ -578,12 +594,12 @@ export const useBudgetStore = create<BudgetState>()(
 
       getTotalIncome: (cycle) =>
         get()
-          .transactions.filter((t) => t.type === 'income' && isDateInCycle(t.date, cycle))
+          .transactions.filter((t) => t.type === 'income' && !t.transferId && isDateInCycle(t.date, cycle))
           .reduce((sum, t) => sum + t.amount, 0),
 
       getTotalExpenses: (cycle) =>
         get()
-          .transactions.filter((t) => t.type === 'expense' && isDateInCycle(t.date, cycle))
+          .transactions.filter((t) => t.type === 'expense' && !t.transferId && isDateInCycle(t.date, cycle))
           .reduce((sum, t) => sum + t.amount, 0),
 
       getBalance: (cycle) =>
@@ -591,7 +607,7 @@ export const useBudgetStore = create<BudgetState>()(
 
       getExpensesByCategory: (cycle) => {
         const expenses = get().transactions.filter(
-          (t) => t.type === 'expense' && isDateInCycle(t.date, cycle)
+          (t) => t.type === 'expense' && !t.transferId && isDateInCycle(t.date, cycle)
         );
         const grouped: Record<string, number> = {};
         for (const e of expenses) {
@@ -603,7 +619,7 @@ export const useBudgetStore = create<BudgetState>()(
 
       getExpensesByTag: (cycle) => {
         const expenses = get().transactions.filter(
-          (t) => t.type === 'expense' && isDateInCycle(t.date, cycle)
+          (t) => t.type === 'expense' && !t.transferId && isDateInCycle(t.date, cycle)
         );
         let needs = 0;
         let wants = 0;
@@ -638,6 +654,7 @@ export const useBudgetStore = create<BudgetState>()(
         currentScreen: state.currentScreen,
         billsCycleStart: state.billsCycleStart,
         cycleSplitDay: state.cycleSplitDay,
+        expectedSalary: state.expectedSalary,
       }),
     }
   )

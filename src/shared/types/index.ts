@@ -146,6 +146,8 @@ export type Receivable = {
   createdAt: string;
 };
 
+export type WalletType = 'debit' | 'credit';
+
 export type Wallet = {
   id: string;
   name: string;
@@ -154,6 +156,10 @@ export type Wallet = {
   initialBalance: number;
   archived: boolean;
   createdAt: string;
+  type?: WalletType; // defaults to 'debit' when undefined (backward compat)
+  creditLimit?: number; // credit only
+  statementDay?: number; // credit only, 1-28
+  dueDay?: number; // credit only, 1-28
 };
 
 export type Screen =

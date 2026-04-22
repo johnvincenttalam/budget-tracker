@@ -374,6 +374,107 @@ export function SavingsIconComponent({ name, size = 18, className }: { name: str
   return <Icon size={size} className={className} />;
 }
 
+// Wallet / account icons
+export function CashIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...defaults(size, props)}>
+      <rect x="2" y="6" width="20" height="12" rx="2" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M6 12h.01M18 12h.01" />
+    </svg>
+  );
+}
+
+export function BankIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...defaults(size, props)}>
+      <path d="M3 10l9-6 9 6" />
+      <path d="M5 10v8M9 10v8M15 10v8M19 10v8" />
+      <path d="M3 20h18" />
+    </svg>
+  );
+}
+
+export function CardIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...defaults(size, props)}>
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <path d="M2 10h20M6 15h4" />
+    </svg>
+  );
+}
+
+export function CoinsIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...defaults(size, props)}>
+      <circle cx="8" cy="8" r="6" />
+      <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
+      <path d="M7 6h1v4M16.71 13.88l.71.71-2.82 2.82" />
+    </svg>
+  );
+}
+
+export function BriefcaseIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...defaults(size, props)}>
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <path d="M2 13h20" />
+    </svg>
+  );
+}
+
+export function StarIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...defaults(size, props)}>
+      <path d="M12 2l2.9 6.9L22 10l-5.5 5 1.6 7.4L12 18.6l-6.1 3.8L7.5 15 2 10l7.1-1.1z" />
+    </svg>
+  );
+}
+
+// Wallet icon map + resolver (handles legacy emoji strings)
+const WALLET_ICON_MAP: Record<string, (props: IconProps) => React.JSX.Element> = {
+  Cash: CashIcon,
+  Bank: BankIcon,
+  Card: CardIcon,
+  Phone: PhoneIcon,
+  Coins: CoinsIcon,
+  Home: HomeIcon,
+  Star: StarIcon,
+  Briefcase: BriefcaseIcon,
+  Wallet: WalletIcon,
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const WALLET_ICON_NAMES = ['Cash', 'Bank', 'Card', 'Phone', 'Coins', 'Home', 'Star', 'Briefcase'] as const;
+// eslint-disable-next-line react-refresh/only-export-components
+export type WalletIconName = (typeof WALLET_ICON_NAMES)[number];
+
+// Legacy emoji → icon name migration for wallets created before SVG icons
+const LEGACY_EMOJI_MAP: Record<string, WalletIconName> = {
+  '\u{1F4B5}': 'Cash',      // 💵
+  '\u{1F4F1}': 'Phone',     // 📱
+  '\u{1F3E6}': 'Bank',      // 🏦
+  '\u{1F4B3}': 'Card',      // 💳
+  '\u{1F4B0}': 'Coins',     // 💰
+  '\u{1F3E0}': 'Home',      // 🏠
+  '\u{2B50}': 'Star',       // ⭐
+  '\u{1F4BC}': 'Briefcase', // 💼
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function resolveWalletIconName(stored: string): string {
+  if (stored in WALLET_ICON_MAP) return stored;
+  if (stored in LEGACY_EMOJI_MAP) return LEGACY_EMOJI_MAP[stored];
+  return 'Wallet';
+}
+
+export function WalletAccountIcon({ name, size = 18, className, style }: { name: string; size?: number; className?: string; style?: React.CSSProperties }) {
+  const resolved = resolveWalletIconName(name);
+  const Icon = WALLET_ICON_MAP[resolved] ?? WalletIcon;
+  return <Icon size={size} className={className} style={style} />;
+}
+
 // Map category names to icon components
 const CATEGORY_ICON_MAP: Record<string, (props: IconProps) => React.JSX.Element> = {
   Food: FoodIcon,

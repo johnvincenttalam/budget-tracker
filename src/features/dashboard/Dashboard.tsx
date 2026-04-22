@@ -13,6 +13,7 @@ import { SectionLabel } from '../../shared/components/SectionLabel';
 import { EmptyState } from '../../shared/components/EmptyState';
 import { RecurringPrompt } from '../recurring/RecurringPrompt';
 import { PaydayCountdown } from './PaydayCountdown';
+import { AccountsOverview } from './AccountsOverview';
 import { WeekChart } from './WeekChart';
 import { TodaySpending } from './TodaySpending';
 import { UpcomingBills } from './UpcomingBills';
@@ -63,7 +64,11 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
 
   const forecast = forecastCycleSpending(store.transactions, cycle);
   const previousCycles = getRecentCycles(4).slice(0, 3);
-  const anomalies = detectSpendingAnomalies(store.transactions, cycle, previousCycles);
+  const cycleElapsedPct = forecast ? forecast.daysElapsed / forecast.totalDays : 0;
+  const anomalies = cycleElapsedPct >= 0.5
+    ? detectSpendingAnomalies(store.transactions, cycle, previousCycles)
+    : [];
+  const expectedIncome = Math.max(income, store.expectedSalary);
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
@@ -71,7 +76,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
   const tips: string[] = [];
   if (forecast) {
     const pctCycle = forecast.daysElapsed / forecast.totalDays;
-    const pctSpent = income > 0 ? expenses / income : 0;
+    const pctSpent = expectedIncome > 0 ? expenses / expectedIncome : 0;
     if (pctSpent < pctCycle * 0.8) tips.push("You're spending below pace — great discipline this cycle!");
     else if (pctSpent > pctCycle * 1.2) tips.push('Spending is running ahead of pace — consider slowing down the rest of this cycle.');
   }
@@ -124,7 +129,9 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         <p className={`text-[2.25rem] font-bold tracking-tight text-center ${isOverBudget ? 'text-red-400' : 'text-emerald-400'}`}>
           {isOverBudget && '−'}{formatMoney(Math.abs(balance), sym)}
         </p>
-        <p className="text-xs text-slate-500 text-center mt-1">Remaining Balance</p>
+        <p className="text-xs text-slate-500 text-center mt-1">
+          {isOverBudget ? 'Over this cycle' : 'Saved this cycle'}
+        </p>
 
         <div className="flex justify-between mt-4 pt-3 border-t border-slate-800">
           <div>
@@ -145,6 +152,11 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
         </svg>
         {tip}
       </p>
+
+      {/* === ACCOUNTS OVERVIEW === */}
+      <div className="animate-reveal-up empty:hidden" style={{ animationDelay: '75ms' }}>
+        <AccountsOverview onNavigate={onNavigate} />
+      </div>
 
       {/* === PAYDAY COUNTDOWN === */}
       <div className="animate-reveal-up" style={{ animationDelay: '90ms' }}>
@@ -171,8 +183,8 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
               <p className="text-xs text-slate-300">
                 At {formatMoney(forecast.dailyAvg, sym)}/day, projected{' '}
                 <span className="font-semibold text-white">{formatMoney(forecast.projected, sym)}</span>.
-                {income > 0 && forecast.projected > income && <span className="text-red-400"> {formatMoney(forecast.projected - income, sym)} over.</span>}
-                {income > 0 && forecast.projected <= income && <span className="text-emerald-400"> Save {formatMoney(income - forecast.projected, sym)}.</span>}
+                {expectedIncome > 0 && forecast.projected > expectedIncome && <span className="text-red-400"> {formatMoney(forecast.projected - expectedIncome, sym)} over.</span>}
+                {expectedIncome > 0 && forecast.projected <= expectedIncome && <span className="text-emerald-400"> Save {formatMoney(expectedIncome - forecast.projected, sym)}.</span>}
               </p>
             )}
             {anomalies.slice(0, 2).map((a) => (
@@ -186,7 +198,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
       )}
 
       {/* === QUICK ACCESS: Bills / Savings / Wishlist === */}
-      <div className="grid grid-cols-3 gap-2 animate-reveal-up" style={{ animationDelay: '240ms' }}>
+      <div className="grid grid-cols-3 gap-2 animate-reveal-up empty:hidden" style={{ animationDelay: '240ms' }}>
         {billsTotal > 0 && (
           <Card size="sm" onClick={() => onNavigate('bills')}>
             <ClipboardCheckIcon size={16} className="text-slate-400 mb-1.5" />
@@ -213,17 +225,17 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
       </div>
 
       {/* === UPCOMING BILLS === */}
-      <div className="animate-reveal-up" style={{ animationDelay: '280ms' }}>
+      <div className="animate-reveal-up empty:hidden" style={{ animationDelay: '280ms' }}>
         <UpcomingBills onNavigate={onNavigate} />
       </div>
 
       {/* === UPCOMING SECTION === */}
-      <div className="animate-reveal-up" style={{ animationDelay: '320ms' }}>
+      <div className="animate-reveal-up empty:hidden" style={{ animationDelay: '320ms' }}>
         <UpcomingSection />
       </div>
 
       {/* === BUDGET PROGRESS CARDS === */}
-      <div className="animate-reveal-up" style={{ animationDelay: '360ms' }}>
+      <div className="animate-reveal-up empty:hidden" style={{ animationDelay: '360ms' }}>
         <BudgetProgressCards />
       </div>
 
@@ -271,26 +283,39 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
           </SectionLabel>
           <Card size="sm" className="!p-0 overflow-hidden">
             <div className="divide-y divide-slate-800">
-              {recentTxns.map((t) => (
-                <div key={t.id} className="px-4 py-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${t.type === 'income' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
-                      {t.type === 'income' ? (
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m-7 7 7-7 7 7" /></svg>
-                      ) : (
-                        <CategoryIcon name={getCategoryIconName(t.category ?? 'Other', customCategories)} size={14} />
-                      )}
+              {recentTxns.map((t) => {
+                const isTransfer = !!t.transferId;
+                return (
+                  <div key={t.id} className="px-4 py-2.5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                        isTransfer
+                          ? 'bg-blue-500/15 text-blue-400'
+                          : t.type === 'income' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'
+                      }`}>
+                        {isTransfer ? (
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                          </svg>
+                        ) : t.type === 'income' ? (
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m-7 7 7-7 7 7" /></svg>
+                        ) : (
+                          <CategoryIcon name={getCategoryIconName(t.category ?? 'Other', customCategories)} size={14} />
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-200">{isTransfer ? 'Transfer' : t.type === 'income' ? t.source ?? 'Income' : t.category ?? 'Other'}</p>
+                        {t.note && <p className="text-[10px] text-slate-500">{t.note}</p>}
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-slate-200">{t.type === 'income' ? t.source ?? 'Income' : t.category ?? 'Other'}</p>
-                      {t.note && <p className="text-[10px] text-slate-500">{t.note}</p>}
-                    </div>
+                    <p className={`text-xs font-bold ${
+                      isTransfer ? 'text-slate-300' : t.type === 'income' ? 'text-emerald-400' : 'text-red-400'
+                    }`}>
+                      {isTransfer ? '' : t.type === 'income' ? '+' : '−'}{formatMoney(t.amount, sym)}
+                    </p>
                   </div>
-                  <p className={`text-xs font-bold ${t.type === 'income' ? 'text-emerald-400' : 'text-red-400'}`}>
-                    {t.type === 'income' ? '+' : '−'}{formatMoney(t.amount, sym)}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Card>
         </div>

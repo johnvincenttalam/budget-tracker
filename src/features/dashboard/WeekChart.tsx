@@ -27,7 +27,7 @@ export function WeekChart() {
     }
 
     for (const tx of store.transactions) {
-      if (tx.type !== 'expense') continue;
+      if (tx.type !== 'expense' || tx.transferId) continue;
       const day = result.find((r) => r.date === tx.date);
       if (day) day.total += tx.amount;
     }

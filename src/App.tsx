@@ -61,7 +61,7 @@ export default function App() {
     report: 'Monthly Report',
     debts: 'Debts',
     receivables: 'Receivables',
-    wallets: 'Wallets',
+    wallets: 'Accounts',
   };
   const showTopBar = !isLocked && !!screenTitles[screen];
 
@@ -179,7 +179,6 @@ export default function App() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
                 <span className="text-[10px] font-medium">Home</span>
-                {screen === 'dashboard' && <div className="w-1 h-1 rounded-full bg-emerald-400" />}
               </button>
 
               {/* Bills */}
@@ -189,7 +188,6 @@ export default function App() {
               >
                 <ClipboardCheckIcon size={20} />
                 <span className="text-[10px] font-medium">Bills</span>
-                {screen === 'bills' && <div className="w-1 h-1 rounded-full bg-emerald-400" />}
               </button>
 
               {/* FAB */}
@@ -211,23 +209,23 @@ export default function App() {
                 onClick={() => navigate('savings')}
                 className={`flex flex-col items-center gap-1 ${screen === 'savings' ? 'text-emerald-400' : 'text-slate-400'}`}
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 1 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z" />
+                  <circle cx="16" cy="10" r="0.5" fill="currentColor" />
+                  <path d="M2 9h2" />
                 </svg>
                 <span className="text-[10px] font-medium">Savings</span>
-                {screen === 'savings' && <div className="w-1 h-1 rounded-full bg-emerald-400" />}
               </button>
 
-              {/* Wishlist */}
+              {/* Accounts */}
               <button
-                onClick={() => navigate('wishlist')}
-                className={`flex flex-col items-center gap-1 ${screen === 'wishlist' ? 'text-emerald-400' : 'text-slate-400'}`}
+                onClick={() => navigate('wallets')}
+                className={`flex flex-col items-center gap-1 ${screen === 'wallets' ? 'text-emerald-400' : 'text-slate-400'}`}
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
                 </svg>
-                <span className="text-[10px] font-medium">Wishlist</span>
-                {screen === 'wishlist' && <div className="w-1 h-1 rounded-full bg-emerald-400" />}
+                <span className="text-[10px] font-medium">Accounts</span>
               </button>
             </div>
           </div>
