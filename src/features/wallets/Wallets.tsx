@@ -7,6 +7,7 @@ import { BottomSheet } from '../../shared/components/BottomSheet';
 import { Input } from '../../shared/components/Input';
 import { Button } from '../../shared/components/Button';
 import { WalletAccountIcon, WALLET_ICON_NAMES } from '../../shared/components/Icons';
+import { WalletPicker } from '../../shared/components/WalletPicker';
 import type { Screen, Wallet, WalletType } from '../../shared/types';
 
 const PRESET_COLORS = [
@@ -254,15 +255,7 @@ export function Wallets({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
 
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-2 relative">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0 text-white"
-                      style={{ backgroundColor: 'rgba(255,255,255,0.22)' }}
-                    >
-                      <WalletAccountIcon name={w.icon} size={16} />
-                    </div>
-                    <p className="text-sm font-semibold text-white truncate drop-shadow">{w.name}</p>
-                  </div>
+                  <p className="text-sm font-semibold text-white truncate drop-shadow min-w-0">{w.name}</p>
                   {isDefault && (
                     <span className="text-[9px] bg-white/25 text-white px-1.5 py-0.5 rounded-full font-medium shrink-0 backdrop-blur-sm">
                       Default
@@ -290,7 +283,7 @@ export function Wallets({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
                     <p className="text-[9px] text-white/75 uppercase tracking-wider">
                       {usedPct.toFixed(0)}% used · {sym}{formatMoney(available)} left
                     </p>
-                    <p className="text-base font-bold text-white mt-0.5">
+                    <p className="text-lg font-bold text-white mt-0.5 tabular-nums">
                       {sym}{formatMoney(used)}
                     </p>
                     <p className="text-[9px] text-white/75">of {sym}{formatMoney(limit)}</p>
@@ -298,7 +291,7 @@ export function Wallets({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
                 ) : (
                   <div className="mt-3 relative">
                     <p className="text-[9px] text-white/75 uppercase tracking-wider">Balance</p>
-                    <p className="text-xl font-bold text-white mt-0.5">
+                    <p className="text-lg font-bold text-white mt-0.5 tabular-nums">
                       {balance < 0 && '−'}{sym}{formatMoney(Math.abs(balance))}
                     </p>
                   </div>
@@ -499,47 +492,20 @@ export function Wallets({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
         title="Transfer Between Accounts"
       >
         <div className="space-y-4">
-          <div>
-            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-medium mb-2">From</p>
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              {activeWallets.map((w) => (
-                <button
-                  key={w.id}
-                  type="button"
-                  onClick={() => setFromWallet(w.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium shrink-0 transition-all ${
-                    fromWallet === w.id
-                      ? 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/40'
-                      : 'bg-slate-800 text-slate-400 active:bg-slate-700'
-                  }`}
-                >
-                  <WalletAccountIcon name={w.icon} size={14} style={{ color: w.color }} />
-                  {w.name}
-                </button>
-              ))}
-            </div>
-          </div>
+          <WalletPicker
+            walletId={fromWallet}
+            onChange={setFromWallet}
+            label="From"
+            surface="sheet"
+          />
 
-          <div>
-            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-medium mb-2">To</p>
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              {activeWallets.filter((w) => w.id !== fromWallet).map((w) => (
-                <button
-                  key={w.id}
-                  type="button"
-                  onClick={() => setToWallet(w.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium shrink-0 transition-all ${
-                    toWallet === w.id
-                      ? 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/40'
-                      : 'bg-slate-800 text-slate-400 active:bg-slate-700'
-                  }`}
-                >
-                  <WalletAccountIcon name={w.icon} size={14} style={{ color: w.color }} />
-                  {w.name}
-                </button>
-              ))}
-            </div>
-          </div>
+          <WalletPicker
+            walletId={toWallet}
+            onChange={setToWallet}
+            label="To"
+            surface="sheet"
+            excludeId={fromWallet}
+          />
 
           <Input
             label="Amount"
