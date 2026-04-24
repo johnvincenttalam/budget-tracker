@@ -1,73 +1,83 @@
-# React + TypeScript + Vite
+# Budget Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A personal finance PWA for tracking expenses, income, bills, savings goals, debts, and multiple accounts — all offline, all client-side.
 
-Currently, two official plugins are available:
+Built with React, TypeScript, and Tailwind CSS. No backend required.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Transactions** — Log income and expenses with categories, notes, and needs/wants tags
+- **Accounts** — Manage debit and credit card accounts with transfers between them
+- **Bills** — Track recurring bills with due dates and installment plans
+- **Savings Goals** — Set targets, deadlines, and track contributions over time
+- **Debts** — Monitor debts with interest rates, minimum payments, and payment history
+- **Receivables** — Track money owed to you with due dates
+- **Wishlist** — Save desired purchases with priority levels
+- **Recurring Templates** — Quick-add from saved expense templates
+- **Budget Limits** — Set and track spending limits per category
+- **Analytics** — Visual breakdowns with charts and monthly reports
+- **PIN Lock** — Optional security for app access
+- **Dark / Light Theme** — Toggleable with smooth transitions
+- **PWA** — Installable, works offline, mobile-optimized
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+| Layer | Technology |
+|-------|------------|
+| Framework | React 19 + TypeScript |
+| Build | Vite 8 |
+| Styling | Tailwind CSS v4 |
+| State | Zustand (persisted to localStorage) |
+| Charts | Recharts |
+| PWA | Custom service worker + web manifest |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+```bash
+# Install dependencies
+npm install
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+# Start dev server
+npm run dev
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Project Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── features/           # Feature screens
+│   ├── dashboard/      # Home dashboard
+│   ├── transactions/   # Add/edit income & expenses
+│   ├── summary/        # Transaction list & filters
+│   ├── analytics/      # Charts & breakdowns
+│   ├── report/         # Monthly reports
+│   ├── bills/          # Bill management
+│   ├── savings/        # Savings goals
+│   ├── debts/          # Debt tracking
+│   ├── receivables/    # Money owed to you
+│   ├── wishlist/       # Shopping wishlist
+│   ├── wallets/        # Account management
+│   ├── recurring/      # Recurring templates
+│   ├── settings/       # App settings
+│   ├── security/       # PIN lock
+│   └── pwa/            # Install prompt
+├── shared/
+│   ├── components/     # Reusable UI (Card, Input, Button, etc.)
+│   ├── store/          # Zustand store
+│   ├── types/          # TypeScript types
+│   ├── hooks/          # Custom hooks
+│   └── utils/          # Helpers (formatting, cycles, CSV export, etc.)
+├── App.tsx             # App shell, navigation, bottom bar
+├── main.tsx            # Entry point
+└── index.css           # Tailwind config & design tokens
+```
+
+## License
+
+MIT
