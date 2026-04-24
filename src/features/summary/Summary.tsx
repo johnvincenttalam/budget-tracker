@@ -28,6 +28,7 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
   const byCategory = store.getExpensesByCategory(cycle);
   const transactions = store
     .getTransactionsForCycle(cycle)
+    .filter((t) => !(t.transferId && t.type === 'income'))
     .sort((a, b) => {
       if (sortBy === 'amount') return b.amount - a.amount;
       if (sortBy === 'category') {
@@ -68,6 +69,8 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
 
   function renderTransaction(t: Transaction) {
     const isTransfer = !!t.transferId;
+    const showDate = sortBy !== 'date';
+    const subtitle = [showDate ? t.date : '', t.note].filter(Boolean).join(' · ');
     return (
       <div
         key={t.id}
@@ -95,31 +98,30 @@ export function Summary({ onNavigate }: { onNavigate: (s: Screen, txId?: string)
             )}
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <p className="text-sm text-slate-200 truncate">
+            <div className="flex items-center gap-1.5">
+              <p className="text-[13px] text-slate-200 truncate">
                 {isTransfer ? 'Transfer' : t.type === 'income' ? t.source ?? 'Income' : t.category ?? 'Other'}
               </p>
               {!isTransfer && t.tag && (
                 <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 ${
+                  className={`text-[9px] px-1.5 py-px rounded-full shrink-0 ${
                     t.tag === 'needs'
-                      ? 'bg-blue-500/20 text-blue-400'
-                      : 'bg-purple-500/20 text-purple-400'
+                      ? 'bg-blue-500/15 text-blue-400/70'
+                      : 'bg-purple-500/15 text-purple-400/70'
                   }`}
                 >
                   {t.tag}
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              <p className="text-xs text-slate-500">{t.date}</p>
-              {t.note && <p className="text-xs text-slate-500 truncate">· {t.note}</p>}
-            </div>
+            {subtitle && (
+              <p className="text-[11px] text-slate-500 truncate">{subtitle}</p>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0 ml-2">
+        <div className="flex items-center gap-3 shrink-0 ml-3">
           <p
-            className={`text-sm font-bold ${
+            className={`text-xs font-semibold ${
               isTransfer ? 'text-slate-300' : t.type === 'income' ? 'text-emerald-400' : 'text-red-400'
             }`}
           >

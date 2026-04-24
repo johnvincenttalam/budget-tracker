@@ -35,6 +35,7 @@ export function Dashboard({ onNavigate }: { onNavigate: (s: Screen) => void }) {
 
   const recentTxns = store
     .getTransactionsForCycle(cycle)
+    .filter((t) => !(t.transferId && t.type === 'income'))
     .sort((a, b) => {
       const aTime = a.createdAt ?? a.date;
       const bTime = b.createdAt ?? b.date;

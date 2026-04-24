@@ -538,7 +538,7 @@ export const useBudgetStore = create<BudgetState>()(
             type: 'expense',
             amount,
             date,
-            note: note || `Transfer to ${state.wallets.find((w) => w.id === toId)?.name ?? 'wallet'}`,
+            note: note || `${state.wallets.find((w) => w.id === fromId)?.name ?? 'wallet'} → ${state.wallets.find((w) => w.id === toId)?.name ?? 'wallet'}`,
             category: 'Transfer',
             walletId: fromId,
             transferId,
