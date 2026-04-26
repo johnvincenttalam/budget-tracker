@@ -64,6 +64,8 @@ export type BillTemplate = {
   currentInstallment?: number; // e.g. 2 means this is payment 2 of totalInstallments
   createdInCycle?: string; // cycle startDate when this bill was first added
   oneTimeCycle?: string; // if set, bill only appears in this specific cycle
+  defaultWalletId?: string; // wallet used when marking this bill paid
+  tag?: Tag; // 'needs' (default) or 'wants' for the auto-created transaction
 };
 
 export type BillPayment = {
@@ -160,6 +162,7 @@ export type Wallet = {
   creditLimit?: number; // credit only
   statementDay?: number; // credit only, 1-28
   dueDay?: number; // credit only, 1-28
+  logoDataUrl?: string; // custom logo, resized to ~64×64 WebP base64 (~5KB)
 };
 
 export type Screen =

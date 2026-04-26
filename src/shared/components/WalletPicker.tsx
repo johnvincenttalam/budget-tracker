@@ -47,6 +47,8 @@ export function WalletPicker({
             >
               <WalletAccountIcon
                 name={w.icon}
+                accountName={w.name}
+                logoDataUrl={w.logoDataUrl}
                 size={14}
                 style={selected ? undefined : { color: w.color }}
               />

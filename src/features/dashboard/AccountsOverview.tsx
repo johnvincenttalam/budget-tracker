@@ -17,6 +17,7 @@ export function AccountsOverview({ onNavigate }: { onNavigate: (s: Screen) => vo
       name: w.name,
       icon: w.icon,
       color: w.color,
+      logoDataUrl: w.logoDataUrl,
       type: w.type ?? 'debit',
       balance: store.getWalletBalance(w.id),
     }));
@@ -89,7 +90,7 @@ export function AccountsOverview({ onNavigate }: { onNavigate: (s: Screen) => vo
               return (
                 <div key={w.id} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2 min-w-0">
-                    <WalletAccountIcon name={w.icon} size={14} style={{ color: w.color }} />
+                    <WalletAccountIcon name={w.icon} accountName={w.name} logoDataUrl={w.logoDataUrl} size={14} style={{ color: w.color }} />
                     <span className="text-slate-300 truncate">{w.name}</span>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">

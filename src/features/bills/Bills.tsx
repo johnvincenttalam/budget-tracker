@@ -8,7 +8,8 @@ import { getCategoryIconName } from '../../shared/utils/categories';
 import { CategoryIcon } from '../../shared/components/Icons';
 import { ServiceAvatar } from '../../shared/components/ServiceAvatar';
 import { BottomSheet } from '../../shared/components/BottomSheet';
-import type { Screen } from '../../shared/types';
+import { WalletPicker } from '../../shared/components/WalletPicker';
+import type { Screen, Tag } from '../../shared/types';
 
 export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => void }) {
   const toast = useToast();
@@ -52,6 +53,8 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
   const [note, setNote] = useState('');
   const [totalInstallments, setTotalInstallments] = useState('');
   const [currentInstallment, setCurrentInstallment] = useState('');
+  const [walletId, setWalletId] = useState(store.defaultWalletId);
+  const [tag, setTag] = useState<Tag>('needs');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   function resetForm() {
@@ -62,6 +65,8 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
     setNote('');
     setTotalInstallments('');
     setCurrentInstallment('');
+    setWalletId(store.defaultWalletId);
+    setTag('needs');
     setEditingId(null);
     setCycleOnly(false);
     setShowForm(false);
@@ -71,8 +76,9 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
     // Show the effective values (with override applied) for this cycle
     const bill = bills.find((b) => b.id === billId);
     if (!bill) return;
+    const hasOverride = !!store.getBillOverride(billId, cycle.startDate);
     setEditingId(billId);
-    setCycleOnly(bill.oneTimeCycle === cycle.startDate);
+    setCycleOnly(bill.oneTimeCycle === cycle.startDate || hasOverride);
     setName(bill.name);
     setAmount(String(bill.amount));
     setCategory(bill.category);
@@ -80,6 +86,8 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
     setNote(bill.note ?? '');
     setTotalInstallments(bill.totalInstallments ? String(bill.totalInstallments) : '');
     setCurrentInstallment(bill.currentInstallment ? String(bill.currentInstallment) : '');
+    setWalletId(bill.defaultWalletId ?? store.defaultWalletId);
+    setTag(bill.tag ?? 'needs');
     setShowForm(true);
   }
 
@@ -106,10 +114,15 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
           category,
           dueDay: day,
           oneTimeCycle: cycle.startDate,
+          defaultWalletId: walletId,
+          tag,
           ...installmentFields,
         });
       } else {
-        // Update everything on the template (affects all cycles)
+        // Update everything on the template (affects all cycles).
+        // Clear any existing override for this cycle so the new template
+        // amount/note isn't masked by a stale per-cycle value.
+        store.clearBillOverride(editingId, cycle.startDate);
         store.updateBillTemplate(editingId, {
           name: name.trim(),
           amount: num,
@@ -117,6 +130,8 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
           dueDay: day,
           note: note.trim() || undefined,
           oneTimeCycle: undefined,
+          defaultWalletId: walletId,
+          tag,
           ...installmentFields,
         });
       }
@@ -129,6 +144,8 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
         note: note.trim() || undefined,
         enabled: true,
         createdInCycle: cycle.startDate,
+        defaultWalletId: walletId,
+        tag,
         ...(cycleOnly ? { oneTimeCycle: cycle.startDate } : {}),
         ...installmentFields,
       });
@@ -145,7 +162,17 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
       toast(bill ? `${bill.name} marked unpaid` : 'Bill marked unpaid');
     } else {
       store.payBill(billId, cycle);
-      toast(bill ? `${bill.name} paid` : 'Bill paid');
+      // Resolve the wallet that payBill actually used so the toast is honest.
+      const usedWalletId =
+        (bill?.defaultWalletId && store.wallets.some((w) => w.id === bill.defaultWalletId && !w.archived)
+          ? bill.defaultWalletId
+          : null) ?? store.defaultWalletId;
+      const wallet = store.wallets.find((w) => w.id === usedWalletId);
+      const amountText = bill ? `${sym}${formatMoney(bill.amount)}` : '';
+      const fromText = wallet ? ` from ${wallet.name}` : '';
+      toast(bill ? `Paid ${amountText}${fromText}` : 'Bill paid', {
+        action: { label: 'Undo', onClick: () => store.unpayBill(billId, cycle.startDate) },
+      });
     }
   }
 
@@ -387,6 +414,29 @@ export function Bills({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => 
                 {cat}
               </button>
             ))}
+          </div>
+
+          {/* Pay-from wallet */}
+          <WalletPicker walletId={walletId} onChange={setWalletId} label="Pay from" surface="sheet" />
+
+          {/* Needs / Wants */}
+          <div className="flex bg-slate-800 rounded-xl p-0.5">
+            <button
+              onClick={() => setTag('needs')}
+              className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
+                tag === 'needs' ? 'bg-blue-500 text-white' : 'text-slate-400'
+              }`}
+            >
+              Needs
+            </button>
+            <button
+              onClick={() => setTag('wants')}
+              className={`flex-1 py-2 rounded-lg text-xs font-medium transition-all ${
+                tag === 'wants' ? 'bg-purple-500 text-white' : 'text-slate-400'
+              }`}
+            >
+              Wants
+            </button>
           </div>
 
           <input

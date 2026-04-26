@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Transaction, Cycle, CurrencySymbol, CategoryBudget, RecurringTemplate, CustomCategory, BillTemplate, BillPayment, BillOverride, SavingsGoal, SavingsContribution, WishlistItem, DebtItem, DebtPayment, Receivable, Wallet, Screen } from '../types';
 import { DEFAULT_CATEGORIES } from '../types';
-import { isDateInCycle } from '../utils/cycle';
+import { isDateInCycle, todayStr } from '../utils/cycle';
 
 const genId = (): string =>
   typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
@@ -69,6 +69,7 @@ interface BudgetState {
   getBillPaymentsForCycle: (cycleKey: string) => BillPayment[];
   setBillOverride: (billId: string, cycleKey: string, overrides: Omit<BillOverride, 'billId' | 'cycleKey'>) => void;
   getBillOverride: (billId: string, cycleKey: string) => BillOverride | undefined;
+  clearBillOverride: (billId: string, cycleKey: string) => void;
 
   // PIN lock
   setPinHash: (hash: string | null) => void;
@@ -198,6 +199,28 @@ export const useBudgetStore = create<BudgetState>()(
               lastDeletedTransaction: null,
             };
           }
+          // If this transaction was created by a bill payment, unmark the bill
+          // and roll back the installment counter so the bill reappears.
+          const linkedPayment = state.billPayments.find((p) => p.transactionId === id);
+          if (linkedPayment) {
+            const updatedTemplates = state.billTemplates.map((b) => {
+              if (b.id !== linkedPayment.billId || !b.totalInstallments || b.currentInstallment == null) return b;
+              return {
+                ...b,
+                currentInstallment: Math.max(1, b.currentInstallment - 1),
+                enabled: true,
+              };
+            });
+            return {
+              transactions: state.transactions.filter((t) => t.id !== id),
+              billPayments: state.billPayments.filter((p) => p !== linkedPayment),
+              billTemplates: updatedTemplates,
+              // Don't allow restore: that would re-add the transaction without
+              // also re-adding the bill payment marker, leaving the bill's
+              // installment counter/enabled flag inconsistent with reality.
+              lastDeletedTransaction: null,
+            };
+          }
           return {
             transactions: state.transactions.filter((t) => t.id !== id),
             lastDeletedTransaction: deleted ?? null,
@@ -284,7 +307,36 @@ export const useBudgetStore = create<BudgetState>()(
           const bill = state.billTemplates.find((b) => b.id === billId);
           if (!bill) return {};
 
-          // Advance installment and auto-disable if fully paid
+          // Resolve effective amount (per-cycle override wins).
+          const override = state.billOverrides.find(
+            (o) => o.billId === billId && o.cycleKey === cycle.startDate
+          );
+          const amount = override?.amount ?? bill.amount;
+
+          // Resolve wallet: bill default → app default → first wallet.
+          const walletId =
+            (bill.defaultWalletId && state.wallets.some((w) => w.id === bill.defaultWalletId && !w.archived)
+              ? bill.defaultWalletId
+              : null) ??
+            state.defaultWalletId ??
+            state.wallets[0]?.id;
+
+          // Build linked transaction.
+          const transactionId = genId();
+          const noteFromOverride = override?.note;
+          const newTransaction: Transaction = {
+            id: transactionId,
+            type: 'expense',
+            amount,
+            category: bill.category,
+            tag: bill.tag ?? 'needs',
+            date: todayStr(),
+            note: (noteFromOverride ?? bill.note ?? bill.name).trim() || bill.name,
+            createdAt: new Date().toISOString(),
+            walletId,
+          };
+
+          // Advance installment and auto-disable if fully paid.
           const updatedTemplates = state.billTemplates.map((b) => {
             if (b.id !== billId || !b.totalInstallments || b.currentInstallment == null) return b;
             const isLastPayment = b.currentInstallment >= b.totalInstallments;
@@ -296,18 +348,22 @@ export const useBudgetStore = create<BudgetState>()(
           });
 
           return {
+            transactions: [...state.transactions, newTransaction],
             billTemplates: updatedTemplates,
             billPayments: [...state.billPayments, {
               billId,
               cycleKey: cycle.startDate,
               paidAt: new Date().toISOString(),
-              transactionId: '',
+              transactionId,
             }],
           };
         }),
 
       unpayBill: (billId, cycleKey) =>
         set((state) => {
+          const payment = state.billPayments.find(
+            (p) => p.billId === billId && p.cycleKey === cycleKey
+          );
           // Reverse installment advancement
           const updatedTemplates = state.billTemplates.map((b) => {
             if (b.id !== billId || !b.totalInstallments || b.currentInstallment == null) return b;
@@ -322,6 +378,10 @@ export const useBudgetStore = create<BudgetState>()(
             billPayments: state.billPayments.filter(
               (p) => !(p.billId === billId && p.cycleKey === cycleKey)
             ),
+            // Also remove the linked transaction if any (legacy payments have no id).
+            transactions: payment?.transactionId
+              ? state.transactions.filter((t) => t.id !== payment.transactionId)
+              : state.transactions,
           };
         }),
 
@@ -345,6 +405,13 @@ export const useBudgetStore = create<BudgetState>()(
 
       getBillOverride: (billId, cycleKey) =>
         get().billOverrides.find((o) => o.billId === billId && o.cycleKey === cycleKey),
+
+      clearBillOverride: (billId, cycleKey) =>
+        set((state) => ({
+          billOverrides: state.billOverrides.filter(
+            (o) => !(o.billId === billId && o.cycleKey === cycleKey)
+          ),
+        })),
 
       // PIN lock
       setPinHash: (hash) => set({ pinHash: hash }),

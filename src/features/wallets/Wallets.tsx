@@ -1,7 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { useBudgetStore } from '../../shared/store/useBudgetStore';
+import { useToast } from '../../shared/components/ToastProvider';
 import { formatMoney } from '../../shared/utils/format';
 import { todayStr } from '../../shared/utils/cycle';
+import { resizeImageToWebP, ImageResizeError } from '../../shared/utils/imageResize';
 import { Card } from '../../shared/components/Card';
 import { BottomSheet } from '../../shared/components/BottomSheet';
 import { Input } from '../../shared/components/Input';
@@ -25,6 +27,7 @@ function walletType(w: Wallet): WalletType {
 
 export function Wallets({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) => void }) {
   const store = useBudgetStore();
+  const toast = useToast();
   const sym = store.currencySymbol;
   const activeWallets = store.wallets.filter((w) => !w.archived);
   const defaultWalletId = store.defaultWalletId;
@@ -42,6 +45,9 @@ export function Wallets({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
   const [creditLimit, setCreditLimit] = useState('');
   const [statementDay, setStatementDay] = useState('');
   const [dueDay, setDueDay] = useState('');
+  const [logoDataUrl, setLogoDataUrl] = useState<string | undefined>(undefined);
+  const [logoBusy, setLogoBusy] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Transfer state
   const [fromWallet, setFromWallet] = useState('');
@@ -79,6 +85,8 @@ export function Wallets({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
     setCreditLimit('');
     setStatementDay('');
     setDueDay('');
+    setLogoDataUrl(undefined);
+    setLogoBusy(false);
     setConfirmDelete(false);
   }
 
@@ -98,8 +106,26 @@ export function Wallets({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
     setCreditLimit(w.creditLimit != null ? String(w.creditLimit) : '');
     setStatementDay(w.statementDay != null ? String(w.statementDay) : '');
     setDueDay(w.dueDay != null ? String(w.dueDay) : '');
+    setLogoDataUrl(w.logoDataUrl);
+    setLogoBusy(false);
     setConfirmDelete(false);
     setSheetMode('edit');
+  }
+
+  async function handleLogoFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow re-selecting the same file later
+    if (!file) return;
+    setLogoBusy(true);
+    try {
+      const dataUrl = await resizeImageToWebP(file);
+      setLogoDataUrl(dataUrl);
+    } catch (err) {
+      const message = err instanceof ImageResizeError ? err.message : 'Could not process image';
+      toast(message);
+    } finally {
+      setLogoBusy(false);
+    }
   }
 
   function openTransfer() {
@@ -126,13 +152,14 @@ export function Wallets({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
       : { type: 'debit' as const, creditLimit: undefined, statementDay: undefined, dueDay: undefined };
 
     if (sheetMode === 'add') {
-      store.addWallet({ name: name.trim(), icon, color, initialBalance: resolvedInitial, ...extras });
+      store.addWallet({ name: name.trim(), icon, color, initialBalance: resolvedInitial, logoDataUrl, ...extras });
     } else if (sheetMode === 'edit' && editingWallet) {
       store.updateWallet(editingWallet.id, {
         name: name.trim(),
         icon,
         color,
         initialBalance: resolvedInitial,
+        logoDataUrl,
         ...extras,
       });
     }
@@ -255,7 +282,16 @@ export function Wallets({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
 
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-2 relative">
-                  <p className="text-sm font-semibold text-white truncate drop-shadow min-w-0">{w.name}</p>
+                  <div className="flex items-center gap-2 min-w-0">
+                    {w.logoDataUrl && (
+                      <img
+                        src={w.logoDataUrl}
+                        alt=""
+                        className="w-6 h-6 rounded-md object-cover shrink-0 ring-1 ring-white/30"
+                      />
+                    )}
+                    <p className="text-sm font-semibold text-white truncate drop-shadow min-w-0">{w.name}</p>
+                  </div>
                   {isDefault && (
                     <span className="text-[9px] bg-white/25 text-white px-1.5 py-0.5 rounded-full font-medium shrink-0 backdrop-blur-sm">
                       Default
@@ -350,9 +386,68 @@ export function Wallets({ onNavigate: _onNavigate }: { onNavigate: (s: Screen) =
             autoFocus
           />
 
+          {/* Logo upload */}
+          <div>
+            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-medium mb-2">Logo (optional)</p>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={logoBusy}
+                aria-label={logoDataUrl ? 'Replace logo' : 'Upload logo'}
+                className={`relative w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center transition-all shrink-0 disabled:opacity-50 ${
+                  logoDataUrl
+                    ? 'bg-slate-800 ring-1 ring-slate-700 active:ring-emerald-500'
+                    : 'bg-slate-800 border-2 border-dashed border-slate-700 active:border-emerald-500 active:bg-slate-700/50'
+                }`}
+              >
+                {logoBusy ? (
+                  <svg className="w-5 h-5 text-slate-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth={2} strokeOpacity={0.25} />
+                    <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
+                  </svg>
+                ) : logoDataUrl ? (
+                  <img src={logoDataUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                )}
+              </button>
+
+              <div className="flex flex-col min-w-0 flex-1">
+                <p className="text-xs text-slate-300 font-medium">
+                  {logoBusy ? 'Processing…' : logoDataUrl ? 'Custom logo set' : 'Tap to upload'}
+                </p>
+                <p className="text-[10px] text-slate-600 mt-0.5">PNG or JPG, max 2MB · resized to 64×64</p>
+              </div>
+
+              {logoDataUrl && !logoBusy && (
+                <button
+                  type="button"
+                  onClick={() => setLogoDataUrl(undefined)}
+                  aria-label="Remove logo"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center bg-slate-800 text-slate-400 active:bg-slate-700 active:text-red-400 transition-colors shrink-0"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleLogoFile}
+                className="hidden"
+              />
+            </div>
+          </div>
+
           {/* Icon picker */}
           <div>
-            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-medium mb-2">Icon</p>
+            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-medium mb-2">Icon{logoDataUrl ? ' (hidden when logo set)' : ''}</p>
             <div className="flex gap-2 flex-wrap">
               {PRESET_ICONS.map((ic) => (
                 <button

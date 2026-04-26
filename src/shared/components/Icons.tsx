@@ -1,4 +1,6 @@
 import React, { type SVGProps } from 'react';
+import { getWalletBrand } from '../utils/walletBrands';
+import { WalletBrandLogo } from './walletBrands';
 
 type IconProps = SVGProps<SVGSVGElement> & { size?: number };
 
@@ -447,7 +449,6 @@ const WALLET_ICON_MAP: Record<string, (props: IconProps) => React.JSX.Element> =
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const WALLET_ICON_NAMES = ['Cash', 'Bank', 'Card', 'Phone', 'Coins', 'Home', 'Star', 'Briefcase'] as const;
-// eslint-disable-next-line react-refresh/only-export-components
 export type WalletIconName = (typeof WALLET_ICON_NAMES)[number];
 
 // Legacy emoji → icon name migration for wallets created before SVG icons
@@ -469,7 +470,23 @@ export function resolveWalletIconName(stored: string): string {
   return 'Wallet';
 }
 
-export function WalletAccountIcon({ name, size = 18, className, style }: { name: string; size?: number; className?: string; style?: React.CSSProperties }) {
+export function WalletAccountIcon({ name, accountName, logoDataUrl, size = 18, className, style }: { name: string; accountName?: string; logoDataUrl?: string; size?: number; className?: string; style?: React.CSSProperties }) {
+  if (logoDataUrl) {
+    return (
+      <img
+        src={logoDataUrl}
+        alt=""
+        width={size}
+        height={size}
+        className={`rounded-md object-cover shrink-0 ${className ?? ''}`}
+        style={style}
+      />
+    );
+  }
+  const brand = getWalletBrand(accountName);
+  if (brand) {
+    return <WalletBrandLogo brand={brand} size={size} className={className} style={style} />;
+  }
   const resolved = resolveWalletIconName(name);
   const Icon = WALLET_ICON_MAP[resolved] ?? WalletIcon;
   return <Icon size={size} className={className} style={style} />;
